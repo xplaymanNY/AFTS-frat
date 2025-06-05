@@ -565,6 +565,9 @@
         "IFR Flight Plan": "right",
         "Best Available Approach": "right"
       };
+        "Private Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
+        "Commercial Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
+        "Airline Transport Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
       const riskData = {
         "Discovery Flight": {
           "Pilot": [{
@@ -837,9 +840,6 @@
             }
           ]
         },
-        "Private Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
-        "Commercial Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
-        "Airline Transport Pilot": JSON.parse(JSON.stringify(sharedHigherCertGroups)),
         "Renter without Instruction": {
           "Pilot": [{
             label: "Second Pilot rated and current",
