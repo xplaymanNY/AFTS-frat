@@ -61,18 +61,28 @@
       cursor: not-allowed;
     }
 
-    .frat-section1 .tooltip-disabled:hover::after {
+    .tooltip-disabled {
+      position: relative;
+      pointer-events: auto;
+    }
+
+    .tooltip-disabled:hover::after {
       content: attr(data-tooltip);
       position: absolute;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.85);
       color: #fff;
-      padding: 4px 8px;
+      padding: 6px 8px;
       border-radius: 4px;
       font-size: 0.85rem;
       white-space: nowrap;
-      top: 100%;
+      top: 110%;
       left: 0;
       z-index: 10;
+      white-space: break-spaces;
+    }
+
+    .tooltip-disabled[disabled] {
+      pointer-events: auto;
     }
 
     .frat-section2 {
@@ -306,7 +316,7 @@
       <label for="studentName" class="required-asterisk">1) Student Name</label>
       <input type="text" id="studentName" placeholder="Al Titude" required>
 
-      <label for="flightDate" class="required-asterisk">2) Today's Date</label>
+      <label for="flightDate" class="required-asterisk">2) Date of Flight</label>
       <input type="date" id="flightDate" required>
 
       <label for="certificateType" class="required-asterisk">3) Certificate Type</label>
