@@ -21,9 +21,11 @@
     border: 1px solid #ddd;
     border-radius: 4px;
   }
+
   .frat‐section1 h2 {
     margin-bottom: 8px;
   }
+
   .frat‐section1 .col‐left,
   .frat‐section1 .col‐right {
     display: inline-block;
@@ -32,11 +34,13 @@
     box-sizing: border-box;
     padding: 0 10px;
   }
+
   .frat‐section1 label {
     display: block;
     margin: 8px 0 4px;
     font-weight: 600;
   }
+
   .frat‐section1 input[type="text"],
   .frat‐section1 input[type="date"],
   .frat‐section1 select {
@@ -45,21 +49,25 @@
     font-size: 1rem;
     box-sizing: border-box;
   }
+
   .frat‐section1 .required‐asterisk::after {
     content: " *";
     color: red;
   }
+
   .frat‐section1 .frat-checkbox {
     margin: 10px 0;
   }
+
   .frat‐section1 .disabled‐block {
     color: #aaa !important;
     cursor: not‐allowed;
   }
+
   .frat‐section1 .tooltip‐disabled:hover::after {
     content: attr(data‐tooltip);
     position: absolute;
-    background: rgba(0,0,0,0.75);
+    background: rgba(0, 0, 0, 0.75);
     color: #fff;
     padding: 4px 8px;
     border-radius: 4px;
@@ -163,7 +171,6 @@
   const flightRulesLabel = document.getElementById('flightRulesLabel');
   const instrumentLabel = document.getElementById('instrumentLabel');
   const renterLabel = document.getElementById('renterLabel');
-
   // Pre-load instructor→weight (for Section 3)
   const instructorWeights = {
     "Alexander Kresic": 150,
@@ -190,7 +197,6 @@
       "Student Pilot (Cross-Country Flight)"
     ].includes(cert);
     const isATP = (cert === "Airline Transport Pilot");
-
     // — Flight Rules (#4)
     if (isRestricted) {
       flightRulesDropdown.value = "VFR";
@@ -200,43 +206,45 @@
         opt.disabled = !!isRestricted;
       }
     });
-    flightRulesDropdown.title = isRestricted
-      ? "IFR not permitted for Discovery or Student Pilot certificates"
-      : "";
-
+    flightRulesDropdown.title = isRestricted ?
+      "IFR not permitted for Discovery or Student Pilot certificates" :
+      "";
     // — Instrument Rated (#6)
     instrumentCheckbox.disabled = isRestricted || isATP;
     if (isRestricted) instrumentCheckbox.checked = false;
     instrumentLabel.classList.toggle("disabled‐block", isRestricted);
-    instrumentCheckbox.title = isRestricted
-      ? "Not applicable for Discovery or Student Pilot flights"
-      : "";
-
+    instrumentCheckbox.title = isRestricted ?
+      "Not applicable for Discovery or Student Pilot flights" :
+      "";
     // — Renter (No Instruction) (#7)
     renterCheckbox.disabled = (cert === "Discovery Flight");
     if (cert === "Discovery Flight") renterCheckbox.checked = false;
     renterLabel.classList.toggle("disabled‐block", cert === "Discovery Flight");
-    renterCheckbox.title = (cert === "Discovery Flight")
-      ? "Discovery Flight must be dual instruction"
-      : "";
-
+    renterCheckbox.title = (cert === "Discovery Flight") ?
+      "Discovery Flight must be dual instruction" :
+      "";
     // — Instructor (#8)
     const disableInstructor = renterCheckbox.checked && !cert.startsWith("Student Pilot");
     instructorDropdown.disabled = disableInstructor;
-    instructorLabelHuman.classList.toggle("disabled‐block", disableInstructor);
-    instructorDropdown.title = disableInstructor
-      ? "Instructor disabled for renter-only flights"
-      : "";
-
-    const instructorRequired = (cert === "Discovery Flight" || cert.startsWith("Student Pilot"));
-    if (instructorRequired) {
-      instructorDropdown.setAttribute("required", "required");
-      instructorLabelHuman.classList.add("required‐asterisk");
+    instructorLabelHuman.classList.toggle("disabled-block", disableInstructor);
+    instructorDropdown.title = disableInstructor ?
+      "Instructor disabled for renter-only flights" :
+      "";
+    const instructorRequired =
+      cert === "Discovery Flight" ||
+      (rules === "IFR" && !isInstrumentRated);
+    if (!disableInstructor) {
+      if (instructorRequired) {
+        instructorDropdown.setAttribute("required", "required");
+        instructorLabelHuman.classList.add("required-asterisk");
+      } else {
+        instructorDropdown.removeAttribute("required");
+        instructorLabelHuman.classList.remove("required-asterisk");
+      }
     } else {
       instructorDropdown.removeAttribute("required");
-      instructorLabelHuman.classList.remove("required‐asterisk");
+      instructorLabelHuman.classList.remove("required-asterisk");
     }
-
     // Prefill instructor weight for Section 3
     const instName = instructorDropdown.value;
     const instWeight = instructorWeights[instName] || "";
@@ -244,7 +252,6 @@
     const wtInput = document.getElementById('instructorWeight');
     if (wtInput) wtInput.value = instWeight;
   }
-
   certDropdown.addEventListener("change", updateSection1Fields);
   flightRulesDropdown.addEventListener("change", updateSection1Fields);
   renterCheckbox.addEventListener("change", updateSection1Fields);
@@ -269,57 +276,71 @@
     border: 1px solid #ddd;
     border-radius: 4px;
   }
+
   .frat‐section2 h2 {
     margin-bottom: 8px;
   }
+
   #riskFactors {
     display: flex;
     flex-wrap: wrap;
     gap: 40px;
     margin: 0 -10px;
   }
+
   #riskFactors .risk-column {
     flex: 1 1 45%;
     min-width: 280px;
     padding: 0 10px;
   }
+
   #riskFactors .group-wrapper {
     display: flex;
     margin-bottom: 20px;
   }
+
   #riskFactors .group-header {
     writing-mode: vertical-lr;
     text-orientation: sideways;
+    transform: rotate(180deg);
+    transform-origin: center;
     font-weight: bold;
     background: #eee;
     border: 1px solid #ccc;
     padding: 8px;
     min-width: 40px;
   }
+
   #riskFactors .item-wrapper {
     flex: 1;
     padding-left: 12px;
   }
+
   #riskFactors .item-row {
     display: flex;
     align-items: center;
     margin: 6px 0;
   }
+
   #riskFactors .item-row label {
     margin-left: 8px;
   }
+
   #riskFactors .item-row span {
     margin-left: auto;
     font-weight: bold;
   }
+
   #riskSummaryContainer {
     margin-top: 30px;
     text-align: center;
   }
+
   #riskScoreText {
     font-weight: bold;
     margin-bottom: 8px;
   }
+
   #riskProgressBar {
     display: flex;
     justify-content: center;
@@ -327,6 +348,7 @@
     flex-wrap: nowrap;
     margin-bottom: 12px;
   }
+
   #riskProgressBar .pill {
     flex: 1;
     text-align: center;
@@ -338,6 +360,7 @@
     font-weight: bold;
     font-size: 0.90rem;
   }
+
   .btn-clear-frat {
     margin-top: 10px;
     padding: 8px 12px;
@@ -347,6 +370,7 @@
     border-radius: 4px;
     cursor: pointer;
   }
+
   .btn-clear-frat:hover {
     background: #c0392b;
   }
@@ -371,7 +395,6 @@
   const riskScoreText = document.getElementById('riskScoreText');
   const riskProgressBar = document.getElementById('riskProgressBar');
   const clearFRATButton = document.getElementById('clearFRATButton');
-
   // Map group name → left/right column
   const groupToColumn = {
     "Pilot": "left",
@@ -381,306 +404,805 @@
     "IFR Flight Plan": "right",
     "Best Available Approach": "right"
   };
-
   // The complete risk-data object (exactly as in the single-block version)
   const riskData = {
     "Discovery Flight": {
-      "Pilot": [
-        { label: "Illness within last 24 hours", value: +1 },
-        { label: "Medications & Drugs within last 24 hours", value: +1 },
-        { label: "Stressful event within last few days", value: +1 },
-        { label: "Alcohol within last 8 hours", value: +1 },
-        { label: "Fatigue", value: +1 },
-        { label: "Empty Stomach and/or Dehydrated", value: +1 }
+      "Pilot": [{
+          label: "Illness within last 24 hours",
+          value: +1
+        },
+        {
+          label: "Medications & Drugs within last 24 hours",
+          value: +1
+        },
+        {
+          label: "Stressful event within last few days",
+          value: +1
+        },
+        {
+          label: "Alcohol within last 8 hours",
+          value: +1
+        },
+        {
+          label: "Fatigue",
+          value: +1
+        },
+        {
+          label: "Empty Stomach and/or Dehydrated",
+          value: +1
+        }
       ]
     },
     "Student Pilot (Local Flight)": {
-      "Pilot": [
-        { label: "Personal Minimums Exceeded", value: "NO-GO" },
-        { label: "Dual Instruction Flight", value: -5 },
-        { label: "Less than 50 Hours in Aircraft or Avionics Type", value: +5 },
-        { label: "Less than 1 flight in the last 14 days", value: +3 },
-        { label: "Flight will occur after work/school", value: +4 },
-        { label: "Fatigued (Less than normal sleep for 2 consecutive nights)", value: +5 },
-        { label: "First Solo in Type", value: +5 },
-        { label: "Missing Required Legal Documents and/or Endorsements", value: "NO-GO" },
-        { label: "Min 1 Hr Dual Received in last 14 days", value: -2 }
+      "Pilot": [{
+          label: "Personal Minimums Exceeded",
+          value: "NO-GO"
+        },
+        {
+          label: "Dual Instruction Flight",
+          value: -5
+        },
+        {
+          label: "Less than 50 Hours in Aircraft or Avionics Type",
+          value: +5
+        },
+        {
+          label: "Less than 1 flight in the last 14 days",
+          value: +3
+        },
+        {
+          label: "Flight will occur after work/school",
+          value: +4
+        },
+        {
+          label: "Fatigued (Less than normal sleep for 2 consecutive nights)",
+          value: +5
+        },
+        {
+          label: "First Solo in Type",
+          value: +5
+        },
+        {
+          label: "Missing Required Legal Documents and/or Endorsements",
+          value: "NO-GO"
+        },
+        {
+          label: "Min 1 Hr Dual Received in last 14 days",
+          value: -2
+        }
       ],
-      "Flight Conditions": [
-        { label: "Twilight or Night", value: +5 },
-        { label: "Surface wind 15+ Knots", value: +4 },
-        { label: "Crosswind 10+ Knots", value: +4 },
-        { label: "Gust Factor 5+ Knots", value: +3 },
-        { label: "Mountainous Terrain", value: +4 }
+      "Flight Conditions": [{
+          label: "Twilight or Night",
+          value: +5
+        },
+        {
+          label: "Surface wind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Crosswind 10+ Knots",
+          value: +4
+        },
+        {
+          label: "Gust Factor 5+ Knots",
+          value: +3
+        },
+        {
+          label: "Mountainous Terrain",
+          value: +4
+        }
       ],
-      "Airport": [
-        { label: "Non-towered Airport or tower closed at ETD or ETA", value: +5 },
-        { label: "Landing Distance Available (LDA) less than 3,500 Feet", value: +3 },
-        { label: "Wet or soft field Runway", value: +3 },
-        { label: "Obstacles on Approach and/or departure", value: +3 },
-        { label: "Unfamiliar Airport", value: +3 }
+      "Airport": [{
+          label: "Non-towered Airport or tower closed at ETD or ETA",
+          value: +5
+        },
+        {
+          label: "Landing Distance Available (LDA) less than 3,500 Feet",
+          value: +3
+        },
+        {
+          label: "Wet or soft field Runway",
+          value: +3
+        },
+        {
+          label: "Obstacles on Approach and/or departure",
+          value: +3
+        },
+        {
+          label: "Unfamiliar Airport",
+          value: +3
+        }
       ],
-      "VFR Flight Plan": [
-        { label: "Ceiling less than 3,000 ft AGL", value: +3 },
-        { label: "Visibility ≤ 6 SM", value: +3 },
-        { label: "Temperature & Dew Point ≤ 3°C Apart", value: +3 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Weather to Deteriorate Within 3 Hours of ETD/ETA", value: +3 },
-        { label: "TFR Within 10 NM of Planned Route", value: +3 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" },
-        { label: "Flight plan filed and activated", value: -2 },
-        { label: "ATC Flight Following used", value: -3 }
+      "VFR Flight Plan": [{
+          label: "Ceiling less than 3,000 ft AGL",
+          value: +3
+        },
+        {
+          label: "Visibility ≤ 6 SM",
+          value: +3
+        },
+        {
+          label: "Temperature & Dew Point ≤ 3°C Apart",
+          value: +3
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Weather to Deteriorate Within 3 Hours of ETD/ETA",
+          value: +3
+        },
+        {
+          label: "TFR Within 10 NM of Planned Route",
+          value: +3
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        },
+        {
+          label: "Flight plan filed and activated",
+          value: -2
+        },
+        {
+          label: "ATC Flight Following used",
+          value: -3
+        }
       ]
     },
     "Student Pilot (Cross-Country Flight)": {
-      "Pilot": [
-        { label: "Personal Minimums Exceeded", value: "NO-GO" },
-        { label: "Dual Instruction Flight", value: -5 },
-        { label: "Less than 50 Hours in Aircraft or Avionics Type", value: +5 },
-        { label: "Less than 1 flight in the last 14 days", value: +3 },
-        { label: "Flight will occur after work/school", value: +4 },
-        { label: "Fatigued (Less than normal sleep for 2 consecutive nights)", value: +5 },
-        { label: "First Solo in Type", value: +5 },
-        { label: "Missing Required Legal Documents and/or Endorsements", value: "NO-GO" },
-        { label: "Min 1 Hr Dual Received in last 14 days", value: -2 }
+      "Pilot": [{
+          label: "Personal Minimums Exceeded",
+          value: "NO-GO"
+        },
+        {
+          label: "Dual Instruction Flight",
+          value: -5
+        },
+        {
+          label: "Less than 50 Hours in Aircraft or Avionics Type",
+          value: +5
+        },
+        {
+          label: "Less than 1 flight in the last 14 days",
+          value: +3
+        },
+        {
+          label: "Flight will occur after work/school",
+          value: +4
+        },
+        {
+          label: "Fatigued (Less than normal sleep for 2 consecutive nights)",
+          value: +5
+        },
+        {
+          label: "First Solo in Type",
+          value: +5
+        },
+        {
+          label: "Missing Required Legal Documents and/or Endorsements",
+          value: "NO-GO"
+        },
+        {
+          label: "Min 1 Hr Dual Received in last 14 days",
+          value: -2
+        }
       ],
-      "Flight Conditions": [
-        { label: "Twilight or Night", value: +5 },
-        { label: "Surface wind 15+ Knots", value: +4 },
-        { label: "Max Crosswind per POH", value: +4 },
-        { label: "Gust Factor 5+ Knots", value: +3 },
-        { label: "Mountainous Terrain", value: +4 }
+      "Flight Conditions": [{
+          label: "Twilight or Night",
+          value: +5
+        },
+        {
+          label: "Surface wind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Max Crosswind per POH",
+          value: +4
+        },
+        {
+          label: "Gust Factor 5+ Knots",
+          value: +3
+        },
+        {
+          label: "Mountainous Terrain",
+          value: +4
+        }
       ],
-      "Airport": [
-        { label: "Non-towered Airport or tower closed at ETD or ETA", value: +5 },
-        { label: "Landing Distance Available (LDA) less than 3,500 Feet", value: +3 },
-        { label: "Wet or soft field Runway", value: +3 },
-        { label: "Obstacles on Approach and/or departure", value: +3 },
-        { label: "Unfamiliar Airport", value: +3 }
+      "Airport": [{
+          label: "Non-towered Airport or tower closed at ETD or ETA",
+          value: +5
+        },
+        {
+          label: "Landing Distance Available (LDA) less than 3,500 Feet",
+          value: +3
+        },
+        {
+          label: "Wet or soft field Runway",
+          value: +3
+        },
+        {
+          label: "Obstacles on Approach and/or departure",
+          value: +3
+        },
+        {
+          label: "Unfamiliar Airport",
+          value: +3
+        }
       ],
-      "VFR Flight Plan": [
-        { label: "Ceiling less than 5,000 ft AGL", value: +3 },
-        { label: "Visibility ≤ 7 SM", value: +3 },
-        { label: "Temperature & Dew Point ≤ 3°C Apart", value: +3 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Weather to Deteriorate Within 3 Hours of ETD/ETA", value: +3 },
-        { label: "TFR Within 10 NM of Planned Route", value: +3 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" },
-        { label: "Flight plan filed and activated", value: -2 },
-        { label: "ATC Flight Following used", value: -3 }
+      "VFR Flight Plan": [{
+          label: "Ceiling less than 5,000 ft AGL",
+          value: +3
+        },
+        {
+          label: "Visibility ≤ 7 SM",
+          value: +3
+        },
+        {
+          label: "Temperature & Dew Point ≤ 3°C Apart",
+          value: +3
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Weather to Deteriorate Within 3 Hours of ETD/ETA",
+          value: +3
+        },
+        {
+          label: "TFR Within 10 NM of Planned Route",
+          value: +3
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        },
+        {
+          label: "Flight plan filed and activated",
+          value: -2
+        },
+        {
+          label: "ATC Flight Following used",
+          value: -3
+        }
       ]
     },
     "Private Pilot": {
-      "Pilot": [
-        { label: "Personal Minimums Exceeded", value: "NO-GO" },
-        { label: "Dual Instruction Flight", value: -5 },
-        { label: "Less than 50 Hours in Aircraft or Avionics Type", value: +5 },
-        { label: "Less than 3 hours in the last 30 days", value: +3 },
-        { label: "Flight will occur after work/school", value: +4 },
-        { label: "Fatigued (Less than normal sleep for 2 consecutive nights)", value: +5 },
-        { label: "First Solo in Type", value: +5 },
-        { label: "Missing Required Legal Documents and/or Endorsements", value: "NO-GO" },
-        { label: "Min 1 Hr Dual Received in last 30 days", value: -2 }
+      "Pilot": [{
+          label: "Personal Minimums Exceeded",
+          value: "NO-GO"
+        },
+        {
+          label: "Dual Instruction Flight",
+          value: -5
+        },
+        {
+          label: "Less than 50 Hours in Aircraft or Avionics Type",
+          value: +5
+        },
+        {
+          label: "Less than 3 hours in the last 30 days",
+          value: +3
+        },
+        {
+          label: "Flight will occur after work/school",
+          value: +4
+        },
+        {
+          label: "Fatigued (Less than normal sleep for 2 consecutive nights)",
+          value: +5
+        },
+        {
+          label: "First Solo in Type",
+          value: +5
+        },
+        {
+          label: "Missing Required Legal Documents and/or Endorsements",
+          value: "NO-GO"
+        },
+        {
+          label: "Min 1 Hr Dual Received in last 30 days",
+          value: -2
+        }
       ],
-      "Flight Conditions": [
-        { label: "Twilight or Night", value: +5 },
-        { label: "Surface wind 15+ Knots", value: +4 },
-        { label: "Crosswind 15+ Knots", value: +4 },
-        { label: "Gust Factor 5+ Knots", value: +3 },
-        { label: "Mountainous Terrain", value: +4 }
+      "Flight Conditions": [{
+          label: "Twilight or Night",
+          value: +5
+        },
+        {
+          label: "Surface wind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Crosswind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Gust Factor 5+ Knots",
+          value: +3
+        },
+        {
+          label: "Mountainous Terrain",
+          value: +4
+        }
       ],
-      "Airport": [
-        { label: "Non-towered Airport or tower closed at ETD or ETA", value: +5 },
-        { label: "Landing Distance Available (LDA) less than 3,500 Feet", value: +3 },
-        { label: "Wet or soft field Runway", value: +3 },
-        { label: "Obstacles on Approach and/or departure", value: +3 },
-        { label: "Unfamiliar Airport", value: +3 }
+      "Airport": [{
+          label: "Non-towered Airport or tower closed at ETD or ETA",
+          value: +5
+        },
+        {
+          label: "Landing Distance Available (LDA) less than 3,500 Feet",
+          value: +3
+        },
+        {
+          label: "Wet or soft field Runway",
+          value: +3
+        },
+        {
+          label: "Obstacles on Approach and/or departure",
+          value: +3
+        },
+        {
+          label: "Unfamiliar Airport",
+          value: +3
+        }
       ],
-      "VFR Flight Plan": [
-        { label: "Ceiling less than 5,000 ft AGL", value: +3 },
-        { label: "Visibility ≤ 7 SM", value: +3 },
-        { label: "Temperature & Dew Point ≤ 3°C Apart", value: +3 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Weather to Deteriorate Within 3 Hours of ETD/ETA", value: +3 },
-        { label: "TFR Within 10 NM of Planned Route", value: +3 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" },
-        { label: "Flight plan filed and activated", value: -2 },
-        { label: "ATC Flight Following used", value: -3 }
+      "VFR Flight Plan": [{
+          label: "Ceiling less than 5,000 ft AGL",
+          value: +3
+        },
+        {
+          label: "Visibility ≤ 7 SM",
+          value: +3
+        },
+        {
+          label: "Temperature & Dew Point ≤ 3°C Apart",
+          value: +3
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Weather to Deteriorate Within 3 Hours of ETD/ETA",
+          value: +3
+        },
+        {
+          label: "TFR Within 10 NM of Planned Route",
+          value: +3
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        },
+        {
+          label: "Flight plan filed and activated",
+          value: -2
+        },
+        {
+          label: "ATC Flight Following used",
+          value: -3
+        }
       ],
-      "IFR Flight Plan": [
-        { label: "Ceiling less than 1,000 ft AGL", value: +2 },
-        { label: "Visibility less than 3 SM", value: +2 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" }
+      "IFR Flight Plan": [{
+          label: "Ceiling less than 1,000 ft AGL",
+          value: +2
+        },
+        {
+          label: "Visibility less than 3 SM",
+          value: +2
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        }
       ],
-      "Best Available Approach": [
-        { label: "Precision Approach", value: -3 },
-        { label: "Non-precision Approach", value: +3 },
-        { label: "No Instrument Approach", value: +4 },
-        { label: "Circling Approach", value: +7 }
+      "Best Available Approach": [{
+          label: "Precision Approach",
+          value: -3
+        },
+        {
+          label: "Non-precision Approach",
+          value: +3
+        },
+        {
+          label: "No Instrument Approach",
+          value: +4
+        },
+        {
+          label: "Circling Approach",
+          value: +7
+        }
       ]
     },
     "Commercial Pilot": {
-      "Pilot": [
-        { label: "Personal Minimums Exceeded", value: "NO-GO" },
-        { label: "Dual Instruction Flight", value: -5 },
-        { label: "Less than 50 Hours in Aircraft or Avionics Type", value: +5 },
-        { label: "Less than 3 hours in the last 30 days", value: +3 },
-        { label: "Flight will occur after work/school", value: +4 },
-        { label: "Fatigued (Less than normal sleep for 2 consecutive nights)", value: +5 },
-        { label: "First Solo in Type", value: +5 },
-        { label: "Missing Required Legal Documents and/or Endorsements", value: "NO-GO" },
-        { label: "Min 1 Hr Dual Received in last 30 days", value: -2 }
+      "Pilot": [{
+          label: "Personal Minimums Exceeded",
+          value: "NO-GO"
+        },
+        {
+          label: "Dual Instruction Flight",
+          value: -5
+        },
+        {
+          label: "Less than 50 Hours in Aircraft or Avionics Type",
+          value: +5
+        },
+        {
+          label: "Less than 3 hours in the last 30 days",
+          value: +3
+        },
+        {
+          label: "Flight will occur after work/school",
+          value: +4
+        },
+        {
+          label: "Fatigued (Less than normal sleep for 2 consecutive nights)",
+          value: +5
+        },
+        {
+          label: "First Solo in Type",
+          value: +5
+        },
+        {
+          label: "Missing Required Legal Documents and/or Endorsements",
+          value: "NO-GO"
+        },
+        {
+          label: "Min 1 Hr Dual Received in last 30 days",
+          value: -2
+        }
       ],
-      "Flight Conditions": [
-        { label: "Twilight or Night", value: +5 },
-        { label: "Surface wind 15+ Knots", value: +4 },
-        { label: "Crosswind 15+ Knots", value: +4 },
-        { label: "Gust Factor 5+ Knots", value: +3 },
-        { label: "Mountainous Terrain", value: +4 }
+      "Flight Conditions": [{
+          label: "Twilight or Night",
+          value: +5
+        },
+        {
+          label: "Surface wind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Crosswind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Gust Factor 5+ Knots",
+          value: +3
+        },
+        {
+          label: "Mountainous Terrain",
+          value: +4
+        }
       ],
-      "Airport": [
-        { label: "Non-towered Airport or tower closed at ETD or ETA", value: +5 },
-        { label: "Landing Distance Available (LDA) less than 3,500 Feet", value: +3 },
-        { label: "Wet or soft field Runway", value: +3 },
-        { label: "Obstacles on Approach and/or departure", value: +3 },
-        { label: "Unfamiliar Airport", value: +3 }
+      "Airport": [{
+          label: "Non-towered Airport or tower closed at ETD or ETA",
+          value: +5
+        },
+        {
+          label: "Landing Distance Available (LDA) less than 3,500 Feet",
+          value: +3
+        },
+        {
+          label: "Wet or soft field Runway",
+          value: +3
+        },
+        {
+          label: "Obstacles on Approach and/or departure",
+          value: +3
+        },
+        {
+          label: "Unfamiliar Airport",
+          value: +3
+        }
       ],
-      "VFR Flight Plan": [
-        { label: "Ceiling less than 5,000 ft AGL", value: +3 },
-        { label: "Visibility ≤ 7 SM", value: +3 },
-        { label: "Temperature & Dew Point ≤ 3°C Apart", value: +3 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Weather to Deteriorate Within 3 Hours of ETD/ETA", value: +3 },
-        { label: "TFR Within 10 NM of Planned Route", value: +3 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" },
-        { label: "Flight plan filed and activated", value: -2 },
-        { label: "ATC Flight Following used", value: -3 }
+      "VFR Flight Plan": [{
+          label: "Ceiling less than 5,000 ft AGL",
+          value: +3
+        },
+        {
+          label: "Visibility ≤ 7 SM",
+          value: +3
+        },
+        {
+          label: "Temperature & Dew Point ≤ 3°C Apart",
+          value: +3
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Weather to Deteriorate Within 3 Hours of ETD/ETA",
+          value: +3
+        },
+        {
+          label: "TFR Within 10 NM of Planned Route",
+          value: +3
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        },
+        {
+          label: "Flight plan filed and activated",
+          value: -2
+        },
+        {
+          label: "ATC Flight Following used",
+          value: -3
+        }
       ],
-      "IFR Flight Plan": [
-        { label: "Ceiling less than 1,000 ft AGL", value: +2 },
-        { label: "Visibility less than 3 SM", value: +2 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" }
+      "IFR Flight Plan": [{
+          label: "Ceiling less than 1,000 ft AGL",
+          value: +2
+        },
+        {
+          label: "Visibility less than 3 SM",
+          value: +2
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        }
       ],
-      "Best Available Approach": [
-        { label: "Precision Approach", value: -3 },
-        { label: "Non-precision Approach", value: +3 },
-        { label: "No Instrument Approach", value: +4 },
-        { label: "Circling Approach", value: +7 }
+      "Best Available Approach": [{
+          label: "Precision Approach",
+          value: -3
+        },
+        {
+          label: "Non-precision Approach",
+          value: +3
+        },
+        {
+          label: "No Instrument Approach",
+          value: +4
+        },
+        {
+          label: "Circling Approach",
+          value: +7
+        }
       ]
     },
     "Airline Transport Pilot": {
-      "Pilot": [
-        { label: "Personal Minimums Exceeded", value: "NO-GO" },
-        { label: "Dual Instruction Flight", value: -5 },
-        { label: "Less than 50 Hours in Aircraft or Avionics Type", value: +5 },
-        { label: "Less than 3 hours in the last 30 days", value: +3 },
-        { label: "Flight will occur after work/school", value: +4 },
-        { label: "Fatigued (Less than normal sleep for 2 consecutive nights)", value: +5 },
-        { label: "First Solo in Type", value: +5 },
-        { label: "Missing Required Legal Documents and/or Endorsements", value: "NO-GO" },
-        { label: "Min 1 Hr Dual Received in last 30 days", value: -2 }
+      "Pilot": [{
+          label: "Personal Minimums Exceeded",
+          value: "NO-GO"
+        },
+        {
+          label: "Dual Instruction Flight",
+          value: -5
+        },
+        {
+          label: "Less than 50 Hours in Aircraft or Avionics Type",
+          value: +5
+        },
+        {
+          label: "Less than 3 hours in the last 30 days",
+          value: +3
+        },
+        {
+          label: "Flight will occur after work/school",
+          value: +4
+        },
+        {
+          label: "Fatigued (Less than normal sleep for 2 consecutive nights)",
+          value: +5
+        },
+        {
+          label: "First Solo in Type",
+          value: +5
+        },
+        {
+          label: "Missing Required Legal Documents and/or Endorsements",
+          value: "NO-GO"
+        },
+        {
+          label: "Min 1 Hr Dual Received in last 30 days",
+          value: -2
+        }
       ],
-      "Flight Conditions": [
-        { label: "Twilight or Night", value: +5 },
-        { label: "Surface wind 15+ Knots", value: +4 },
-        { label: "Crosswind 15+ Knots", value: +4 },
-        { label: "Gust Factor 5+ Knots", value: +3 },
-        { label: "Mountainous Terrain", value: +4 }
+      "Flight Conditions": [{
+          label: "Twilight or Night",
+          value: +5
+        },
+        {
+          label: "Surface wind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Crosswind 15+ Knots",
+          value: +4
+        },
+        {
+          label: "Gust Factor 5+ Knots",
+          value: +3
+        },
+        {
+          label: "Mountainous Terrain",
+          value: +4
+        }
       ],
-      "Airport": [
-        { label: "Non-towered Airport or tower closed at ETD or ETA", value: +5 },
-        { label: "Landing Distance Available (LDA) less than 3,500 Feet", value: +3 },
-        { label: "Wet or soft field Runway", value: +3 },
-        { label: "Obstacles on Approach and/or departure", value: +3 },
-        { label: "Unfamiliar Airport", value: +3 }
+      "Airport": [{
+          label: "Non-towered Airport or tower closed at ETD or ETA",
+          value: +5
+        },
+        {
+          label: "Landing Distance Available (LDA) less than 3,500 Feet",
+          value: +3
+        },
+        {
+          label: "Wet or soft field Runway",
+          value: +3
+        },
+        {
+          label: "Obstacles on Approach and/or departure",
+          value: +3
+        },
+        {
+          label: "Unfamiliar Airport",
+          value: +3
+        }
       ],
-      "VFR Flight Plan": [
-        { label: "Ceiling less than 5,000 ft AGL", value: +3 },
-        { label: "Visibility ≤ 7 SM", value: +3 },
-        { label: "Temperature & Dew Point ≤ 3°C Apart", value: +3 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Weather to Deteriorate Within 3 Hours of ETD/ETA", value: +3 },
-        { label: "TFR Within 10 NM of Planned Route", value: +3 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" },
-        { label: "Flight plan filed and activated", value: -2 },
-        { label: "ATC Flight Following used", value: -3 }
+      "VFR Flight Plan": [{
+          label: "Ceiling less than 5,000 ft AGL",
+          value: +3
+        },
+        {
+          label: "Visibility ≤ 7 SM",
+          value: +3
+        },
+        {
+          label: "Temperature & Dew Point ≤ 3°C Apart",
+          value: +3
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Weather to Deteriorate Within 3 Hours of ETD/ETA",
+          value: +3
+        },
+        {
+          label: "TFR Within 10 NM of Planned Route",
+          value: +3
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        },
+        {
+          label: "Flight plan filed and activated",
+          value: -2
+        },
+        {
+          label: "ATC Flight Following used",
+          value: -3
+        }
       ],
-      "IFR Flight Plan": [
-        { label: "Ceiling less than 1,000 ft AGL", value: +2 },
-        { label: "Visibility less than 3 SM", value: +2 },
-        { label: "No Weather Reporting at destination", value: +4 },
-        { label: "SIGMET/Convective SIGMET Within 10 NM of Route", value: +4 },
-        { label: "Less Than 1 Hour of Fuel Reserves", value: "NO-GO" }
+      "IFR Flight Plan": [{
+          label: "Ceiling less than 1,000 ft AGL",
+          value: +2
+        },
+        {
+          label: "Visibility less than 3 SM",
+          value: +2
+        },
+        {
+          label: "No Weather Reporting at destination",
+          value: +4
+        },
+        {
+          label: "SIGMET/Convective SIGMET Within 10 NM of Route",
+          value: +4
+        },
+        {
+          label: "Less Than 1 Hour of Fuel Reserves",
+          value: "NO-GO"
+        }
       ]
     },
     "Renter without Instruction": {
-      "Pilot": [
-        { label: "Second Pilot rated and current", value: -1 }
-      ]
+      "Pilot": [{
+        label: "Second Pilot rated and current",
+        value: -1
+      }]
     },
     "Instrument Rated": {
-      "Pilot": [
-        { label: "Instrument Rating current and proficient", value: -3 }
-      ],
-      "Best Available Approach": [
-        { label: "Precision Approach", value: -3 },
-        { label: "Non-precision Approach", value: +3 },
-        { label: "No Instrument Approach", value: +4 },
-        { label: "Circling Approach", value: +7 }
+      "Pilot": [{
+        label: "Instrument Rating current and proficient",
+        value: -3
+      }],
+      "Best Available Approach": [{
+          label: "Precision Approach",
+          value: -3
+        },
+        {
+          label: "Non-precision Approach",
+          value: +3
+        },
+        {
+          label: "No Instrument Approach",
+          value: +4
+        },
+        {
+          label: "Circling Approach",
+          value: +7
+        }
       ]
     }
   };
-
   // Helper: deep-clone an object so we can merge later
   function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
-
   // Build the set of groups based on what’s selected in Section 1
-function getGroupDataForFRAT() {
-  const cert = document.getElementById('certificateType').value;
-  const rules = document.getElementById('flightRules').value;
-  const isRenter = document.getElementById('renterWithoutInstruction').checked;
-  const isInstrumentRated = document.getElementById('instrumentRated').checked 
-                          || cert === "Airline Transport Pilot";
-
-  if (!cert) return {};
-
-  // Start from the base certificate
-  const baseKey = riskData[cert] ? cert : "Student Pilot (Local Flight)";
-  const groups = deepClone(riskData[baseKey] || {});
-
-  // Append renter-only risks
-  if (isRenter && riskData["Renter without Instruction"]) {
-    for (const grp in riskData["Renter without Instruction"]) {
-      groups[grp] = (groups[grp] || []).concat(riskData["Renter without Instruction"][grp]);
+  function getGroupDataForFRAT() {
+    const cert = document.getElementById('certificateType').value;
+    const rules = document.getElementById('flightRules').value;
+    const isRenter = document.getElementById('renterWithoutInstruction').checked;
+    const isInstrumentRated = document.getElementById('instrumentRated').checked ||
+      cert === "Airline Transport Pilot";
+    if (!cert) return {};
+    // Start from the base certificate
+    const baseKey = riskData[cert] ? cert : "Student Pilot (Local Flight)";
+    const groups = deepClone(riskData[baseKey] || {});
+    // Append renter-only risks
+    if (isRenter && riskData["Renter without Instruction"]) {
+      for (const grp in riskData["Renter without Instruction"]) {
+        groups[grp] = (groups[grp] || []).concat(riskData["Renter without Instruction"][grp]);
+      }
     }
-  }
-
-  // Append instrument-rated risks
-  if (isInstrumentRated && riskData["Instrument Rated"]) {
-    for (const grp in riskData["Instrument Rated"]) {
-      groups[grp] = (groups[grp] || []).concat(riskData["Instrument Rated"][grp]);
+    // Append instrument-rated risks
+    if (isInstrumentRated && riskData["Instrument Rated"]) {
+      for (const grp in riskData["Instrument Rated"]) {
+        groups[grp] = (groups[grp] || []).concat(riskData["Instrument Rated"][grp]);
+      }
     }
+    // Conditional Group Filtering
+    if (rules !== "VFR") delete groups["VFR Flight Plan"];
+    if (rules !== "IFR") delete groups["IFR Flight Plan"];
+    if (!isInstrumentRated) delete groups["Best Available Approach"];
+    return groups;
   }
-
-  // Conditional Group Filtering
-  if (rules !== "VFR") delete groups["VFR Flight Plan"];
-  if (rules !== "IFR") delete groups["IFR Flight Plan"];
-  if (!isInstrumentRated) delete groups["Best Available Approach"];
-
-  return groups;
-}
-
   // Draw all checkboxes into #riskFactors
   function renderRiskFactors() {
     const cert = document.getElementById('certificateType').value;
@@ -690,69 +1212,55 @@ function getGroupDataForFRAT() {
     }
     const rules = document.getElementById('flightRules').value;
     const groups = getGroupDataForFRAT();
-
     riskContainer.innerHTML = "";
     const leftCol = document.createElement("div");
     leftCol.className = "risk-column";
     const rightCol = document.createElement("div");
     rightCol.className = "risk-column";
-
     for (const group in groups) {
       const groupWrapper = document.createElement("div");
       groupWrapper.className = "group-wrapper";
-
       const header = document.createElement("div");
       header.className = "group-header";
       header.textContent = group;
-
       const itemWrap = document.createElement("div");
       itemWrap.className = "item-wrapper";
-
       groups[group].forEach((risk, idx) => {
         const row = document.createElement("div");
         row.className = "item-row";
-
         const id = `${group.replace(/\s/g,'')}-${idx}`;
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.id = id;
-
         const riskLabel = document.createElement("label");
         riskLabel.htmlFor = id;
         riskLabel.textContent = risk.label;
-
         const valueDisplay = document.createElement("span");
         valueDisplay.textContent = "(0)";
         valueDisplay.style.color = "";
-
         checkbox.addEventListener("change", updateRiskSummary);
-
         row.appendChild(checkbox);
         row.appendChild(riskLabel);
         row.appendChild(valueDisplay);
         itemWrap.appendChild(row);
       });
-
       groupWrapper.appendChild(header);
       groupWrapper.appendChild(itemWrap);
-
       if (groupToColumn[group] === "right") {
         rightCol.appendChild(groupWrapper);
       } else {
         leftCol.appendChild(groupWrapper);
       }
     }
-
     riskContainer.appendChild(leftCol);
     riskContainer.appendChild(rightCol);
     updateRiskSummary();
   }
-
   // Decide thresholds for Low / Moderate / High / Extreme
   function getRiskThresholds() {
     const cert = document.getElementById('certificateType').value;
-    const isInstrumentRated = document.getElementById('instrumentRated').checked 
-                              || cert === "Airline Transport Pilot";
+    const isInstrumentRated = document.getElementById('instrumentRated').checked ||
+      cert === "Airline Transport Pilot";
     if (cert === "Discovery Flight") return [2, 4, 5];
     if (cert.startsWith("Student Pilot")) return [12, 18, 19];
     if (cert === "Private Pilot" && isInstrumentRated) return [28, 34, 35];
@@ -765,14 +1273,12 @@ function getGroupDataForFRAT() {
     const rules = document.getElementById('flightRules').value;
     const isRenter = document.getElementById('renterWithoutInstruction').checked;
     const isDualInstruction = !isRenter;
-    const isInstrumentRated = document.getElementById('instrumentRated').checked 
-                              || cert === "Airline Transport Pilot";
+    const isInstrumentRated = document.getElementById('instrumentRated').checked ||
+      cert === "Airline Transport Pilot";
     const airplane = document.getElementById('airplaneType').value;
-
     const [low, moderate, high] = getRiskThresholds();
     let score = 0;
     let hasUnmitigatedNoGo = false;
-
     // Flatten all risk definitions for quick lookup
     const allRisksFlat = [
       ...(Object.values(riskData[cert] || {}).flat()),
@@ -780,35 +1286,36 @@ function getGroupDataForFRAT() {
       ...(riskData["Instrument Rated"]?.Pilot || []),
       ...(riskData["Private, Commercial, or ATP"]?.["Best Available Approach"] || [])
     ];
-
     const checkboxes = riskContainer.querySelectorAll("input[type='checkbox']");
     checkboxes.forEach(cb => {
       const labelText = cb.nextElementSibling.textContent.trim();
       const span = cb.parentElement.querySelector("span");
       let valText = "(0)";
       let valColor = "";
-
-      const riskDef = allRisksFlat.find(r => r.label === labelText);
-      if (cb.checked && riskDef) {
-        if (riskDef.value === "NO-GO") {
-          const isFuelItem = (labelText === "Less Than 1 Hour of Fuel Reserves");
-          if (isFuelItem || cert === "Discovery Flight") {
-            hasUnmitigatedNoGo = true;
+      // Default behavior
+      if (cb.checked) {
+        // Hardcoded NO-GO labels that require mitigation
+        if ([
+            "Personal Minimums Exceeded",
+            "Missing Required Legal Documents and/or Endorsements",
+            "Less Than 1 Hour of Fuel Reserves"
+          ].includes(labelText)) {
+          const isMitigated = isDualInstruction && labelText !== "Less Than 1 Hour of Fuel Reserves";
+          if (isMitigated) {
+            valText = "(0)";
+            valColor = "";
+          } else {
             valText = "(NO-GO)";
             valColor = "red";
-          } else {
-            // see if “Personal Minimums Exceeded” or “Missing…” is mitigated by dual instruction
-            const cannotMitigate = !["Personal Minimums Exceeded","Missing Required Legal Documents and/or Endorsements"]
-                                   .includes(labelText);
-            if (cannotMitigate || !isDualInstruction) {
-              hasUnmitigatedNoGo = true;
-              valText = "(NO-GO)";
-              valColor = "red";
-            }
+            hasUnmitigatedNoGo = true;
           }
-        } else if (typeof riskDef.value === "number") {
-          score += riskDef.value;
-          valText = (riskDef.value > 0) ? `(+${riskDef.value})` : `(${riskDef.value})`;
+        } else {
+          // Fall back to original lookup for numerical value
+          const riskDef = allRisksFlat.find(r => r.label === labelText);
+          if (riskDef && typeof riskDef.value === "number") {
+            score += riskDef.value;
+            valText = (riskDef.value > 0) ? `(+${riskDef.value})` : `(${riskDef.value})`;
+          }
         }
       }
       if (span) {
@@ -816,16 +1323,13 @@ function getGroupDataForFRAT() {
         span.style.color = valColor;
       }
     });
-
     // +5 if IFR and six-pack airplane
-    if (rules === "IFR" && ["C172S","C172R","C172P","PA-44-180"].includes(airplane)) {
+    if (rules === "IFR" && ["C172S", "C172R", "C172P", "PA-44-180"].includes(airplane)) {
       score += 5;
     }
-
     let riskLevel = "";
     let levelColor = "";
     let pillIndex = 0;
-
     if (hasUnmitigatedNoGo) {
       riskLevel = "EXTREME RISK (NO-GO)";
       levelColor = "red";
@@ -853,12 +1357,10 @@ function getGroupDataForFRAT() {
       levelColor = "#e67e00";
       pillIndex = 2;
     }
-
     riskScoreText.textContent = `Total Risk Score: ${score} — ${riskLevel}`;
     riskScoreText.style.color = levelColor;
-
     // Build pill bar: [LOW] / [MODERATE] / [HIGH] / [EXTREME]
-    const stages = ["LOW","MODERATE","HIGH","EXTREME"];
+    const stages = ["LOW", "MODERATE", "HIGH", "EXTREME"];
     riskProgressBar.innerHTML = "";
     stages.forEach((stage, idx) => {
       const pill = document.createElement("div");
@@ -885,14 +1387,12 @@ function getGroupDataForFRAT() {
       }
     });
   }
-
   // Whenever Section 1 changes, re-render Section 2
   document.getElementById('certificateType').addEventListener('change', renderRiskFactors);
   document.getElementById('flightRules').addEventListener('change', renderRiskFactors);
   document.getElementById('renterWithoutInstruction').addEventListener('change', renderRiskFactors);
   document.getElementById('instrumentRated').addEventListener('change', renderRiskFactors);
   document.getElementById('airplaneType').addEventListener('change', updateRiskSummary);
-
   clearFRATButton.addEventListener("click", function(e) {
     e.preventDefault();
     const boxes = riskContainer.querySelectorAll("input[type='checkbox']");
@@ -906,7 +1406,6 @@ function getGroupDataForFRAT() {
     });
     updateRiskSummary();
   });
-
   // On load of this widget, do an initial render (in case Section 1 had default values)
   renderRiskFactors();
 </script>
@@ -922,31 +1421,37 @@ function getGroupDataForFRAT() {
     border: 1px solid #ddd;
     border-radius: 4px;
   }
+
   .frat‐section3 h2 {
     margin-bottom: 8px;
   }
+
   .wb-container {
     display: flex;
     flex-wrap: wrap;
     gap: 40px;
     margin: 0 -10px;
   }
+
   .wb-column {
     flex: 1 1 45%;
     min-width: 280px;
     padding: 0 10px;
   }
+
   .wb-column label {
     display: block;
     margin: 8px 0 4px;
     font-weight: 600;
   }
+
   .wb-column input[type="number"] {
     width: 100%;
     padding: 6px;
     font-size: 1rem;
     box-sizing: border-box;
   }
+
   .wb-output {
     margin: 10px 0;
     padding: 8px;
@@ -955,6 +1460,7 @@ function getGroupDataForFRAT() {
     border-radius: 4px;
     font-size: 0.95rem;
   }
+
   .btn-clear-wb {
     margin: 10px 0 0;
     padding: 8px 12px;
@@ -964,6 +1470,7 @@ function getGroupDataForFRAT() {
     border-radius: 4px;
     cursor: pointer;
   }
+
   .btn-clear-wb:hover {
     background: #c0392b;
   }
@@ -1023,19 +1530,17 @@ function getGroupDataForFRAT() {
   const fuelGallonsInput = document.getElementById('fuelGallons');
   const baggageAInput = document.getElementById('baggageA');
   const baggageBInput = document.getElementById('baggageB');
-
   const wbRampWeightOut = document.getElementById('wbRampWeight');
   const wbRampMomentOut = document.getElementById('wbRampMoment');
   const wbCGOut = document.getElementById('wbCG');
   const wbCheckOut = document.getElementById('wbCheck');
   const clearWBButton = document.getElementById('clearWBButton');
-
   // Arm data per airplane (inches aft of datum)
   const armData = {
     "C172S": {
       pilotFront: 37,
       rearPassengers: 73,
-      fuelPerGal: 48,   // 6 lb/gal @ 48" arm
+      fuelPerGal: 48, // 6 lb/gal @ 48" arm
       baggageA: 95,
       baggageB: 125,
       rampMax: 2600,
@@ -1095,7 +1600,6 @@ function getGroupDataForFRAT() {
       return;
     }
     const arms = armData[airplane];
-
     // Parse inputs (fallback to 0 if blank)
     const EW = parseFloat(emptyWeightInput.value) || 0;
     const EM = parseFloat(emptyMomentInput.value) || 0;
@@ -1105,33 +1609,27 @@ function getGroupDataForFRAT() {
     const FG = parseFloat(fuelGallonsInput.value) || 0;
     const BA = parseFloat(baggageAInput.value) || 0;
     const BB = parseFloat(baggageBInput.value) || 0;
-
     const PM = (SW * arms.pilotFront) / 1000;
     const IM = (IW * arms.pilotFront) / 1000;
     const RM = (RPW * arms.rearPassengers) / 1000;
     const FuM = (FG * 6 * arms.fuelPerGal) / 1000;
     const BAM = (BA * arms.baggageA) / 1000;
     const BBM = (BB * arms.baggageB) / 1000;
-
     const rampWt = EW + SW + IW + RPW + (FG * 6) + BA + BB;
     const rampMo = EM + PM + IM + RM + FuM + BAM + BBM;
-
     let cgInches = 0;
     if (rampWt > 0) {
       cgInches = (rampMo * 1000) / rampWt;
     }
-
     let checkText = "OK ✅";
     if (rampWt > arms.rampMax + 1 || rampMo < 0) {
       checkText = "Check Math ❌";
     }
-
     wbRampWeightOut.textContent = `Ramp Weight : ${rampWt.toFixed(0)} lbs`;
     wbRampMomentOut.textContent = `Ramp Moment : ${rampMo.toFixed(1)} (lb-in / 1000)`;
     wbCGOut.textContent = `Calculated CG : ${cgInches.toFixed(1)} in aft of datum`;
     wbCheckOut.textContent = `Weight Check : ${checkText}`;
   }
-
   // Recompute any time a relevant field changes
   [
     emptyWeightInput,
@@ -1146,7 +1644,6 @@ function getGroupDataForFRAT() {
   ].forEach(el => {
     if (el) el.addEventListener("input", calculateWB);
   });
-
   clearWBButton.addEventListener("click", function(e) {
     e.preventDefault();
     emptyWeightInput.value = "";
@@ -1173,6 +1670,7 @@ function getGroupDataForFRAT() {
     padding: 10px;
     text-align: center;
   }
+
   .frat‐actions button {
     margin: 0 8px;
     padding: 10px 16px;
@@ -1182,15 +1680,19 @@ function getGroupDataForFRAT() {
     cursor: pointer;
     color: #fff;
   }
+
   #submitButton {
     background: #2ecc71;
   }
+
   #submitButton:hover {
     background: #27ae60;
   }
+
   #printButton {
     background: #3498db;
   }
+
   #printButton:hover {
     background: #2980b9;
   }
@@ -1207,10 +1709,8 @@ function getGroupDataForFRAT() {
   // ───────────────────────────────────────────────────────
   const submitButton = document.getElementById('submitButton');
   const printButton = document.getElementById('printButton');
-
   submitButton.addEventListener("click", function(e) {
     e.preventDefault();
-
     // 1) Validate Section 1 required fields
     const requiredIds = [
       'studentName',
@@ -1229,20 +1729,18 @@ function getGroupDataForFRAT() {
     }
     // If cert requires an instructor, check #instructorName
     const cert = document.getElementById('certificateType').value;
-    if ((cert === "Discovery Flight" || cert.startsWith("Student Pilot"))
-        && !document.getElementById('instructorName').value) {
+    if ((cert === "Discovery Flight" || cert.startsWith("Student Pilot")) &&
+      !document.getElementById('instructorName').value) {
       alert("Please select an Instructor for Discovery/Student Pilot flights.");
       document.getElementById('instructorName').focus();
       return;
     }
-
     // 2) Ensure Section 2 has been rendered
     const riskText = document.getElementById('riskScoreText').textContent;
     if (!riskText || riskText.trim() === "") {
       alert("Please pick a Certificate Type & Flight Rules in Section 1 so Section 2 can display.");
       return;
     }
-
     // 3) Validate Section 3 required fields
     const wbRequired = [
       'emptyWeight',
@@ -1258,11 +1756,9 @@ function getGroupDataForFRAT() {
         return;
       }
     }
-
     // Build the mailto: parameters
-    const toEmail = "mgutierrez.dfe@gmail.com"; 
+    const toEmail = "mgutierrez.dfe@gmail.com";
     let ccEmail = "";
-
     const certVal = encodeURIComponent(cert);
     const riskLevelText = riskText; // e.g. "Total Risk Score: 17 — HIGH RISK"
     if ((/HIGH RISK|EXTREME RISK/).test(riskLevelText)) {
@@ -1290,7 +1786,6 @@ function getGroupDataForFRAT() {
         }
       }
     }
-
     const studentNameVal = encodeURIComponent(document.getElementById('studentName').value);
     const flightDateVal = encodeURIComponent(document.getElementById('flightDate').value);
     const flightRulesVal = encodeURIComponent(document.getElementById('flightRules').value);
@@ -1299,7 +1794,6 @@ function getGroupDataForFRAT() {
     const instructorVal = encodeURIComponent(document.getElementById('instructorName').value || "");
     const passenger1Val = encodeURIComponent(document.getElementById('passenger1').value);
     const passenger2Val = encodeURIComponent(document.getElementById('passenger2').value);
-
     // Section 3 W&B values
     const EW = encodeURIComponent(document.getElementById('emptyWeight').value);
     const EM = encodeURIComponent(document.getElementById('emptyMoment').value);
@@ -1313,7 +1807,6 @@ function getGroupDataForFRAT() {
     const rampMoText = encodeURIComponent(document.getElementById('wbRampMoment').textContent);
     const cgText = encodeURIComponent(document.getElementById('wbCG').textContent);
     const checkText = encodeURIComponent(document.getElementById('wbCheck').textContent);
-
     // Build email body (URL-encoded)
     let body = "";
     body += `-- FRAT Submission --%0D%0A`;
@@ -1342,7 +1835,6 @@ function getGroupDataForFRAT() {
     body += `${cgText}%0D%0A`;
     body += `${checkText}%0D%0A`;
     body += `%0D%0A-- End of Form --%0D%0A`;
-
     // Build mailto: link
     let mailtoLink = `mailto:${toEmail}`;
     if (ccEmail) {
@@ -1352,11 +1844,9 @@ function getGroupDataForFRAT() {
     }
     mailtoLink += `subject=${encodeURIComponent("FRAT Submission: " + document.getElementById('studentName').value + " / " + document.getElementById('flightDate').value)}`;
     mailtoLink += `&body=${body}`;
-
     // Open default mail client
     window.location.href = mailtoLink;
   });
-
   printButton.addEventListener("click", function(e) {
     e.preventDefault();
     window.print();
