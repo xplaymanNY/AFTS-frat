@@ -1284,8 +1284,11 @@
       ...(Object.values(riskData[cert] || {}).flat()),
       ...(riskData["Renter without Instruction"]?.Pilot || []),
       ...(riskData["Instrument Rated"]?.Pilot || []),
-      ...(riskData["Private, Commercial, or ATP"]?.["Best Available Approach"] || [])
+      ...((isInstrumentRated || cert === "Airline Transport Pilot") 
+          ? (riskData["Best Available Approach"] || []) 
+          : [])
     ];
+
     const checkboxes = riskContainer.querySelectorAll("input[type='checkbox']");
     checkboxes.forEach(cb => {
       const labelText = cb.nextElementSibling.textContent.trim();
