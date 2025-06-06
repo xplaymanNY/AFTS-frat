@@ -1276,7 +1276,6 @@
       const dualCheckbox = [...riskContainer.querySelectorAll("label")]
         .find(l => l.textContent?.trim() === "Dual Instruction Flight")
         ?.previousElementSibling;
-
       const isDualInstruction = dualCheckbox?.checked || false;
       console.log(`[DEBUG] isDualInstruction = ${isDualInstruction}`);
       const isInstrumentRated = document.getElementById('instrumentRated').checked ||
@@ -1377,6 +1376,7 @@
         levelColor = "#e67e00";
         pillIndex = 2;
       }
+      score = Math.max(score, 0);
       riskScoreText.textContent = `Total Risk Score: ${score} — ${riskLevel}`;
       riskScoreText.style.color = levelColor;
       // Build pill bar: [LOW] / [MODERATE] / [HIGH] / [EXTREME]
