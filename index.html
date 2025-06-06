@@ -1291,7 +1291,8 @@
 
     const checkboxes = riskContainer.querySelectorAll("input[type='checkbox']");
     checkboxes.forEach(cb => {
-      const labelText = cb.nextElementSibling.textContent.trim();
+      const labelEl = cb.parentElement.querySelector(`label[for='${cb.id}']`);
+      const labelText = labelEl?.textContent.trim() || "";
       const span = cb.parentElement.querySelector("span");
       let valText = "(0)";
       let valColor = "";
