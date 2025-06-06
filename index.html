@@ -1212,6 +1212,7 @@
     }
     const rules = document.getElementById('flightRules').value;
     const groups = getGroupDataForFRAT();
+    const allRisksFlat = Object.values(groups).flat();
     riskContainer.innerHTML = "";
     const leftCol = document.createElement("div");
     leftCol.className = "risk-column";
