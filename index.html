@@ -1298,26 +1298,27 @@
       // Default behavior
       if (cb.checked) {
         // Hardcoded NO-GO labels that require mitigation
-        if ([
-            "Personal Minimums Exceeded",
-            "Missing Required Legal Documents and/or Endorsements",
-            "Less Than 1 Hour of Fuel Reserves"
-          ].includes(labelText)) {
-          const isMitigated = isDualInstruction && labelText !== "Less Than 1 Hour of Fuel Reserves";
-          if (isMitigated) {
-            valText = "(0)";
-            valColor = "";
-          } else {
+         if ([
+             "Personal Minimums Exceeded",
+             "Missing Required Legal Documents and/or Endorsements",
+             "Less Than 1 Hour of Fuel Reserves"
+           ].includes(labelText)) {
+          
+           let isMitigated = false;
+         
+           if (labelText === "Less Than 1 Hour of Fuel Reserves") {
+             isMitigated = false; // never mitigated
+           } else {
+            isMitigated = isDualInstruction; // mitigated by dual
+          }
+         
+          if (!isMitigated) {
             valText = "(NO-GO)";
             valColor = "red";
             hasUnmitigatedNoGo = true;
-          }
-        } else {
-          // Fall back to original lookup for numerical value
-          const riskDef = allRisksFlat.find(r => r.label === labelText);
-          if (riskDef && typeof riskDef.value === "number") {
-            score += riskDef.value;
-            valText = (riskDef.value > 0) ? `(+${riskDef.value})` : `(${riskDef.value})`;
+          } else {
+            valText = "(0)";
+            valColor = "";
           }
         }
       }
