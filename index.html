@@ -55,7 +55,7 @@
       color: red;
     }
 
-    .frat‐section1 .frat-checkbox {
+    .frat‐section1 .frat‐checkbox {
       margin: 10px 0;
     }
 
@@ -204,9 +204,22 @@
         (!instructorDropdown.disabled ? instructor : true);
       continueButton.disabled = !isComplete;
     }
-    continueButton.addEventListener("click", () => {
-      section2.classList.add("visible");
-      renderRiskFactors(); // Initial risk section render
+    continueButton.addEventListener("click", function() {
+      const certValid = certDropdown.value !== "";
+      const rulesValid = flightRulesDropdown.value !== "";
+      const airplaneValid = airplaneDropdown.value !== "";
+      const instructorRequired = !instructorDropdown.disabled;
+      const instructorValid = !instructorRequired || instructorDropdown.value !== "";
+      if (certValid && rulesValid && airplaneValid && instructorValid) {
+        section2.classList.add("visible");
+        section2.style.display = "block";
+        setTimeout(() => {
+          section2.style.opacity = "1";
+        }, 10);
+        renderRiskFactors();
+      } else {
+        alert("Please complete all required fields in Section 1 before continuing.");
+      }
     });
     ["change", "input"].forEach(evt => {
       certDropdown.addEventListener(evt, validateSection1Completion);
@@ -216,15 +229,18 @@
     });
 
     function updateSection1Fields() {
+      console.log("[DEBUG] updateSection1Fields() triggered");
       const cert = certDropdown.value;
       const rules = flightRulesDropdown.value;
+      const airplane = airplaneDropdown.value;
+      const isInstrumentRated = instrumentCheckbox.checked || cert === "Airline Transport Pilot";
       const isRestricted = [
         "Discovery Flight",
         "Student Pilot (Local Flight)",
         "Student Pilot (Cross-Country Flight)"
       ].includes(cert);
       const isATP = (cert === "Airline Transport Pilot");
-      // — Flight Rules (#4)
+      // ───── Flight Rules (#4) ─────
       if (isRestricted) {
         flightRulesDropdown.value = "VFR";
       }
@@ -236,30 +252,31 @@
       flightRulesDropdown.title = isRestricted ?
         "IFR not permitted for Discovery or Student Pilot certificates" :
         "";
-      // — Instrument Rated (#6)
-      instrumentCheckbox.disabled = isRestricted || isATP;
-      if (isRestricted) instrumentCheckbox.checked = false;
-      instrumentLabel.classList.toggle("disabled‐block", isRestricted);
-      instrumentCheckbox.title = isRestricted ?
+      flightRulesDropdown.classList.toggle("disabled-block", isRestricted);
+      // ───── Instrument Rated (#6) ─────
+      const instrumentDisabled = isRestricted || isATP;
+      instrumentCheckbox.disabled = instrumentDisabled;
+      if (instrumentDisabled) instrumentCheckbox.checked = false;
+      instrumentLabel.classList.toggle("disabled-block", instrumentDisabled);
+      instrumentCheckbox.title = instrumentDisabled ?
         "Not applicable for Discovery or Student Pilot flights" :
         "";
-      // — Renter (No Instruction) (#7)
-      renterCheckbox.disabled = (cert === "Discovery Flight");
-      if (cert === "Discovery Flight") renterCheckbox.checked = false;
-      renterLabel.classList.toggle("disabled‐block", cert === "Discovery Flight");
-      renterCheckbox.title = (cert === "Discovery Flight") ?
+      // ───── Renter Without Instruction (#7) ─────
+      const renterDisabled = cert === "Discovery Flight";
+      renterCheckbox.disabled = renterDisabled;
+      if (renterDisabled) renterCheckbox.checked = false;
+      renterLabel.classList.toggle("disabled-block", renterDisabled);
+      renterCheckbox.title = renterDisabled ?
         "Discovery Flight must be dual instruction" :
         "";
-      // — Instructor (#8)
+      // ───── Instructor (#8) ─────
       const disableInstructor = renterCheckbox.checked && !cert.startsWith("Student Pilot");
       instructorDropdown.disabled = disableInstructor;
       instructorLabelHuman.classList.toggle("disabled-block", disableInstructor);
       instructorDropdown.title = disableInstructor ?
         "Instructor disabled for renter-only flights" :
         "";
-      const instructorRequired =
-        cert === "Discovery Flight" ||
-        (rules === "IFR" && !isInstrumentRated);
+      const instructorRequired = cert === "Discovery Flight" || (rules === "IFR" && !isInstrumentRated);
       if (!disableInstructor) {
         if (instructorRequired) {
           instructorDropdown.setAttribute("required", "required");
@@ -272,21 +289,26 @@
         instructorDropdown.removeAttribute("required");
         instructorLabelHuman.classList.remove("required-asterisk");
       }
-      // Prefill instructor weight for Section 3
+      // ───── Prefill instructor weight in Section 3 ─────
       const instName = instructorDropdown.value;
       const instWeight = instructorWeights[instName] || "";
-      // We assume an <input id="instructorWeight"> exists in Section 3 (Widget #3)
-      const wtInput = document.getElementById('instructorWeight');
+      const wtInput = document.getElementById("instructorWeight");
       if (wtInput) wtInput.value = instWeight;
+      // ───── Enable/Disable Continue Button ─────
+      const instructorRequired = !instructorDropdown.disabled &&
+        (cert === "Discovery Flight" || (rules === "IFR" && !isInstrumentRated));
+      const instructorValid = !instructorRequired || instructorDropdown.value !== "";
+      const formComplete = cert && rules && airplane && instructorValid;
+      continueButton.disabled = !formComplete;
+      tryEnableContinueButton();
     }
-    certDropdown.addEventListener("change", updateSection1Fields);
-    flightRulesDropdown.addEventListener("change", updateSection1Fields);
-    renterCheckbox.addEventListener("change", updateSection1Fields);
-    instructorDropdown.addEventListener("change", () => {
-      // immediately prefill weight
-      const instName = instructorDropdown.value;
-      const wtInput = document.getElementById('instructorWeight');
-      if (wtInput) wtInput.value = instructorWeights[instName] || "";
+    ["change", "input"].forEach(evt => {
+      certDropdown.addEventListener(evt, updateSection1Fields);
+      flightRulesDropdown.addEventListener(evt, updateSection1Fields);
+      renterCheckbox.addEventListener(evt, updateSection1Fields);
+      instrumentCheckbox.addEventListener(evt, updateSection1Fields);
+      instructorDropdown.addEventListener(evt, updateSection1Fields);
+      airplaneDropdown.addEventListener(evt, updateSection1Fields);
     });
     // Run on load
     updateSection1Fields();
@@ -509,15 +531,12 @@
     }
   </style>
 
-  <div class="frat‐section2">
+  <div id="section2" class="section" style="display: none;">
     <h2>Section 2: Flight Risk Assessment Tool</h2>
+    <div id="riskScoreText">Total Risk Score: 0 — LOW RISK</div>
+    <div id="riskProgressBar" class="pill-bar"></div>
+    <button id="clearFRATButton">Clear FRAT</button>
     <div id="riskFactors"></div>
-
-    <div id="riskSummaryContainer">
-      <div id="riskScoreText">Total Risk Score: 0 — LOW RISK</div>
-      <div id="riskProgressBar"></div>
-      <button class="btn-clear-frat" id="clearFRATButton">Clear FRAT</button>
-    </div>
   </div>
 
   <script>
@@ -1565,8 +1584,6 @@
       });
       updateRiskSummary();
     });
-    // On load of this widget, do an initial render (in case Section 1 had default values)
-    renderRiskFactors();
   </script>
   <style>
     /* ─────────────────
