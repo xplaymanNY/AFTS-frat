@@ -191,6 +191,7 @@
 
     function updateSection1Fields() {
       const cert = certDropdown.value;
+      const rules = flightRulesDropdown.value;
       const isRestricted = [
         "Discovery Flight",
         "Student Pilot (Local Flight)",
@@ -1240,6 +1241,7 @@
       }
       const rules = document.getElementById('flightRules').value;
       const groups = getGroupDataForFRAT();
+      console.log("[DEBUG] groups = ", groups);
       const allRisksFlat = Object.values(groups).flat();
       riskContainer.innerHTML = "";
       const leftCol = document.createElement("div");
@@ -1283,7 +1285,7 @@
       }
       riskContainer.appendChild(leftCol);
       riskContainer.appendChild(rightCol);
-      updateRiskSummary();
+      setTimeout(updateRiskSummary, 0);
     }
     // Decide thresholds for Low / Moderate / High / Extreme
     function getRiskThresholds() {
@@ -1334,7 +1336,7 @@
           const isNoGo = [
             "Personal Minimums Exceeded",
             "Missing Required Legal Documents and/or Endorsements",
-            "Less Than 1 Hour of Fuel Reserves"
+            "Less Than 1 Hour of Fuel Reserves",
             "Landing Distance Available (LDA) less than 3,500 Feet"
           ].includes(labelText);
           console.log(`[DEBUG] Is NO-GO match: ${isNoGo}`);
@@ -1436,7 +1438,9 @@
           riskProgressBar.appendChild(slash);
         }
       });
-      lastPillIndex = pillIndex;
+      if (typeof pillIndex !== "undefined") {
+        lastPillIndex = pillIndex;
+      }
     }
     // Whenever Section 1 changes, re-render Section 2
     document.getElementById('certificateType').addEventListener('change', renderRiskFactors);
