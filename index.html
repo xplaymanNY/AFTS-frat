@@ -294,15 +294,37 @@
     function validateSection1Completion() {
       const cert = certDropdown.value;
       const rules = flightRulesDropdown.value;
-      const airplane = airplaneDropdown.value;
-      const instructorRequired = !instructorDropdown.disabled;
       const instructor = instructorDropdown.value;
-      const certValid = cert && cert !== "";
-      const rulesValid = rules && rules !== "";
-      const airplaneValid = airplane && airplane !== "";
-      const instructorValid = !instructorRequired || (instructor && instructor !== "");
-      return certValid && rulesValid && airplaneValid && instructorValid;
+      const airplane = document.getElementById('airplaneType').value;
+      const certValid = cert !== "";
+      const rulesValid = rules !== "";
+      const planeValid = airplane !== "";
+      const instructorRequired = !instructorDropdown.disabled;
+      const instructorValid = !instructorRequired || instructor !== "";
+      const isComplete = certValid && rulesValid && planeValid && instructorValid;
+      continueButton.disabled = !isComplete;
+      return isComplete;
     }
+    // "Continue to Risk Assessment" button handler
+    continueButton.addEventListener("click", () => {
+      if (validateSection1Completion()) {
+        section2.classList.add("visible");
+        section2.style.display = "block";
+        setTimeout(() => {
+          section2.style.opacity = "1";
+        }, 10);
+        renderRiskFactors();
+      } else {
+        alert("Please complete all required fields in Section 1 before continuing.");
+      }
+    });
+    // Re-validate on input changes
+    ["change", "input"].forEach(evt => {
+      certDropdown.addEventListener(evt, validateSection1Completion);
+      flightRulesDropdown.addEventListener(evt, validateSection1Completion);
+      instructorDropdown.addEventListener(evt, validateSection1Completion);
+      document.getElementById('airplaneType').addEventListener(evt, validateSection1Completion);
+    });
 
     function tryEnableContinueButton() {
       const button = document.getElementById("continueToSection2");
@@ -335,13 +357,8 @@
     /* ────────────────
      SECTION 2 CSS
      ──────────────── */
-    #section2Container {
-      display: none;
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
     #section2 {
+      display: none;
       opacity: 0;
       max-height: 0;
       overflow: hidden;
@@ -350,6 +367,7 @@
     }
 
     #section2.visible {
+      display: block;
       opacity: 1;
       max-height: 5000px;
       transform: translateY(0);
