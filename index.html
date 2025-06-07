@@ -154,6 +154,9 @@
       <label for="passenger1">9) Passenger Names (Max 2)</label>
       <input type="text" id="passenger1" placeholder="Passenger 1">
       <input type="text" id="passenger2" placeholder="Passenger 2">
+      <div style="text-align:center; margin-top: 1rem;">
+        <button id="continueToSection2" disabled style="padding: 10px 20px; font-size: 1rem;">Continue to Risk Assessment</button>
+      </div>
     </div>
   </div>
 
@@ -188,6 +191,29 @@
       "Sheena Masters": 130,
       "Tony Hwang": 190
     };
+    const continueButton = document.getElementById("continueToRisk");
+    const section2 = document.getElementById("section2");
+
+    function validateSection1Completion() {
+      const cert = certDropdown.value;
+      const rules = flightRulesDropdown.value;
+      const instructor = instructorDropdown.value;
+      const airplane = document.getElementById('airplaneType').value;
+      // Ensure all required dropdowns are filled (not default placeholders)
+      const isComplete = cert && rules && airplane &&
+        (!instructorDropdown.disabled ? instructor : true);
+      continueButton.disabled = !isComplete;
+    }
+    continueButton.addEventListener("click", () => {
+      section2.classList.add("visible");
+      renderRiskFactors(); // Initial risk section render
+    });
+    ["change", "input"].forEach(evt => {
+      certDropdown.addEventListener(evt, validateSection1Completion);
+      flightRulesDropdown.addEventListener(evt, validateSection1Completion);
+      instructorDropdown.addEventListener(evt, validateSection1Completion);
+      document.getElementById('airplaneType').addEventListener(evt, validateSection1Completion);
+    });
 
     function updateSection1Fields() {
       const cert = certDropdown.value;
@@ -264,11 +290,71 @@
     });
     // Run on load
     updateSection1Fields();
+
+    function validateSection1Completion() {
+      const cert = certDropdown.value;
+      const rules = flightRulesDropdown.value;
+      const airplane = airplaneDropdown.value;
+      const instructorRequired = !instructorDropdown.disabled;
+      const instructor = instructorDropdown.value;
+      const certValid = cert && cert !== "";
+      const rulesValid = rules && rules !== "";
+      const airplaneValid = airplane && airplane !== "";
+      const instructorValid = !instructorRequired || (instructor && instructor !== "");
+      return certValid && rulesValid && airplaneValid && instructorValid;
+    }
+
+    function tryEnableContinueButton() {
+      const button = document.getElementById("continueToSection2");
+      if (!button) return;
+      button.disabled = !validateSection1Completion();
+    }
+    certDropdown.addEventListener("change", tryEnableContinueButton);
+    flightRulesDropdown.addEventListener("change", tryEnableContinueButton);
+    airplaneDropdown.addEventListener("change", tryEnableContinueButton);
+    instructorDropdown.addEventListener("change", tryEnableContinueButton);
+    document.getElementById("continueToSection2").addEventListener("click", function() {
+          const section2 = document.getElementById("section2Container");
+          if (!section2) return;
+          section2.style.display = "block";
+          section2.style.opacity = 0;
+          section2.style.transform = "translateY(20px)";
+          setTimeout(() => {
+            section2.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+            section2.style.opacity = 1;
+            section2.style.transform = "translateY(0)";
+          }, 10);
+          // Render Risk Matrix on first reveal
+          renderRiskFactors();
+          // Scroll to it smoothly
+          section2.scrollIntoView({
+            behavior: "smooth"
+          });
   </script>
   <style>
     /* ────────────────
      SECTION 2 CSS
      ──────────────── */
+    #section2Container {
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    #section2 {
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+
+    #section2.visible {
+      opacity: 1;
+      max-height: 5000px;
+      transform: translateY(0);
+    }
+
     .frat‐section2 {
       font-family: Arial, sans-serif;
       max-width: 800px;
