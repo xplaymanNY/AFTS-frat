@@ -374,6 +374,34 @@
     .btn-clear-frat:hover {
       background: #c0392b;
     }
+
+    @keyframes sweep-right {
+      from {
+        background-position: 100% 0;
+      }
+
+      to {
+        background-position: 0 0;
+      }
+    }
+
+    @keyframes sweep-left {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 100% 0;
+      }
+    }
+
+    .pill-animate {
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.3), transparent);
+      background-size: 200% 100%;
+      background-repeat: no-repeat;
+      animation-duration: 0.6s;
+      animation-fill-mode: none;
+    }
   </style>
 
   <div class="frat‐section2">
@@ -1268,6 +1296,7 @@
       if (cert === "Private Pilot") return [18, 24, 25];
       return [28, 34, 35]; // Commercial & ATP fallback
     }
+    let lastPillIndex = 0;
 
     function updateRiskSummary() {
       const cert = document.getElementById('certificateType').value;
@@ -1406,6 +1435,7 @@
           riskProgressBar.appendChild(slash);
         }
       });
+      lastPillIndex = pillIndex;
     }
     // Whenever Section 1 changes, re-render Section 2
     document.getElementById('certificateType').addEventListener('change', renderRiskFactors);
