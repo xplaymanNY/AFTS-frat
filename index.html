@@ -13,21 +13,21 @@
     /* ─────────────
      SECTION 1 CSS
      ───────────── */
-    .frat‐section1 {
-      font‐family: Arial, sans‐serif;
-      max‐width: 800px;
+    .frat-section1 {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
       margin: 0 auto 20px;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
     }
 
-    .frat‐section1 h2 {
+    .frat-section1 h2 {
       margin-bottom: 8px;
     }
 
-    .frat‐section1 .col‐left,
-    .frat‐section1 .col‐right {
+    .frat-section1 .col-left,
+    .frat-section1 .col-right {
       display: inline-block;
       vertical-align: top;
       width: calc(50% - 10px);
@@ -35,37 +35,37 @@
       padding: 0 10px;
     }
 
-    .frat‐section1 label {
+    .frat-section1 label {
       display: block;
       margin: 8px 0 4px;
       font-weight: 600;
     }
 
-    .frat‐section1 input[type="text"],
-    .frat‐section1 input[type="date"],
-    .frat‐section1 select {
+    .frat-section1 input[type="text"],
+    .frat-section1 input[type="date"],
+    .frat-section1 select {
       width: 100%;
       padding: 6px;
       font-size: 1rem;
       box-sizing: border-box;
     }
 
-    .frat‐section1 .required‐asterisk::after {
+    .frat-section1 .required-asterisk::after {
       content: " *";
       color: red;
     }
 
-    .frat‐section1 .frat‐checkbox {
+    .frat-section1 .frat-checkbox {
       margin: 10px 0;
     }
 
-    .frat‐section1 .disabled‐block {
+    .frat-section1 .disabled-block {
       color: #aaa !important;
-      cursor: not‐allowed;
+      cursor: not-allowed;
     }
 
-    .frat‐section1 .tooltip‐disabled:hover::after {
-      content: attr(data‐tooltip);
+    .frat-section1 .tooltip-disabled:hover::after {
+      content: attr(data-tooltip);
       position: absolute;
       background: rgba(0, 0, 0, 0.75);
       color: #fff;
@@ -79,17 +79,17 @@
     }
   </style>
 
-  <div class="frat‐section1">
+  <div class="frat-section1">
     <h2>Section 1: Student &amp; Flight Info</h2>
 
-    <div class="col‐left">
-      <label for="studentName" class="required‐asterisk">1) Student Name</label>
+    <div class="col-left">
+      <label for="studentName" class="required-asterisk">1) Student Name</label>
       <input type="text" id="studentName" placeholder="Al Titude" required>
 
-      <label for="flightDate" class="required‐asterisk">2) Today's Date</label>
+      <label for="flightDate" class="required-asterisk">2) Today's Date</label>
       <input type="date" id="flightDate" required>
 
-      <label for="certificateType" class="required‐asterisk">3) Certificate Type</label>
+      <label for="certificateType" class="required-asterisk">3) Certificate Type</label>
       <select id="certificateType" required>
         <option value="">Select Certificate</option>
         <option value="Discovery Flight">Discovery Flight</option>
@@ -100,14 +100,14 @@
         <option value="Airline Transport Pilot">Airline Transport Pilot</option>
       </select>
 
-      <label for="flightRules" id="flightRulesLabel" class="required‐asterisk">4) Flight Rules</label>
+      <label for="flightRules" id="flightRulesLabel" class="required-asterisk">4) Flight Rules</label>
       <select id="flightRules" required>
         <option value="">Select Rules</option>
         <option value="VFR">VFR</option>
         <option value="IFR">IFR</option>
       </select>
 
-      <label for="airplaneType" class="required‐asterisk">5) Airplane Type</label>
+      <label for="airplaneType" class="required-asterisk">5) Airplane Type</label>
       <select id="airplaneType" required>
         <option value="">Select Aircraft</option>
         <option value="C172S">C172S</option>
@@ -119,7 +119,7 @@
       </select>
     </div>
 
-    <div class="col‐right">
+    <div class="col-right">
       <div class="frat-checkbox">
         <label for="instrumentRated" id="instrumentLabel">6) Instrument Rated</label>
         <input type="checkbox" id="instrumentRated">
@@ -395,7 +395,7 @@
       transform: translateY(0);
     }
 
-    .frat‐section2 {
+    .frat-section2 {
       font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 0 auto 20px;
@@ -404,7 +404,7 @@
       border-radius: 4px;
     }
 
-    .frat‐section2 h2 {
+    .frat-section2 h2 {
       margin-bottom: 8px;
     }
 
@@ -1589,7 +1589,7 @@
     /* ─────────────────
      SECTION 3 CSS
      ───────────────── */
-    .frat‐section3 {
+    .frat-section3 {
       font-family: Arial, sans-serif;
       max-width: 800px;
       margin: 0 auto 20px;
@@ -1598,7 +1598,7 @@
       border-radius: 4px;
     }
 
-    .frat‐section3 h2 {
+    .frat-section3 h2 {
       margin-bottom: 8px;
     }
 
@@ -1652,19 +1652,19 @@
     }
   </style>
 
-  <div class="frat‐section3">
+  <div class="frat-section3">
     <h2>Section 3: Weight &amp; Balance</h2>
 
     <div class="wb-container">
       <!-- Column 1: Inputs -->
       <div class="wb-column">
-        <label for="emptyWeight" class="required‐asterisk">Basic Empty Weight (lbs)</label>
+        <label for="emptyWeight" class="required-asterisk">Basic Empty Weight (lbs)</label>
         <input type="number" id="emptyWeight" min="0" step="1" placeholder="e.g. 1500">
 
-        <label for="emptyMoment" class="required‐asterisk">Empty Weight Moment (lb-in / 1000)</label>
+        <label for="emptyMoment" class="required-asterisk">Empty Weight Moment (lb-in / 1000)</label>
         <input type="number" id="emptyMoment" min="0" step="0.1" placeholder="e.g. 50.0">
 
-        <label for="studentWeight" class="required‐asterisk">Student (Pilot) Weight (lbs)</label>
+        <label for="studentWeight" class="required-asterisk">Student (Pilot) Weight (lbs)</label>
         <input type="number" id="studentWeight" min="0" step="1" placeholder="Enter your weight">
 
         <label for="instructorWeight">Instructor Weight (lbs)</label>
@@ -1673,7 +1673,7 @@
         <label for="rearPassengersWeight">Rear Passengers Combined (lbs)</label>
         <input type="number" id="rearPassengersWeight" min="0" step="1" placeholder="Max 300 lbs">
 
-        <label for="fuelGallons" class="required‐asterisk">Fuel (gal)</label>
+        <label for="fuelGallons" class="required-asterisk">Fuel (gal)</label>
         <input type="number" id="fuelGallons" min="0" step="0.1" placeholder="e.g. 10.5">
 
         <label for="baggageA">Baggage Area A (lbs)</label>
@@ -1840,14 +1840,14 @@
     /* ─────────────────────────────
      WIDGET #4 CSS → Buttons Only
      ───────────────────────────── */
-    .frat‐actions {
+    .frat-actions {
       max-width: 800px;
       margin: 0 auto 20px;
       padding: 10px;
       text-align: center;
     }
 
-    .frat‐actions button {
+    .frat-actions button {
       margin: 0 8px;
       padding: 10px 16px;
       font-size: 1rem;
@@ -1874,7 +1874,7 @@
     }
   </style>
 
-  <div class="frat‐actions">
+  <div class="frat-actions">
     <button id="submitButton">Submit</button>
     <button id="printButton">Print</button>
   </div>
@@ -1949,7 +1949,7 @@
             "Jay Saduakas": "zhandik.95@gmail.com",
             "Josselyne Aguilar": "josselyne_saira@outlook.com",
             "Kyle Lacey": "kyle.lacey@airfleettraining.com",
-            "Mark Gutierrez": "dittos‐elvish6h@icloud.com",
+            "Mark Gutierrez": "dittos-elvish6h@icloud.com",
             "Murad Gabr": "murad.n.gabr@gmail.com",
             "Roman Konyushenko": "rkon3113@gmail.com",
             "Sham Perera": "flanker92@gmail.com",
