@@ -249,23 +249,6 @@
       (!instructorDropdown.disabled ? instructor : true);
     continueButton.disabled = !isComplete;
   }
-  continueButton.addEventListener("click", function() {
-    const certValid = certDropdown.value !== "";
-    const rulesValid = flightRulesDropdown.value !== "";
-    const airplaneValid = airplaneDropdown.value !== "";
-    const instructorRequired = !instructorDropdown.disabled;
-    const instructorValid = !instructorRequired || instructorDropdown.value !== "";
-    if (certValid && rulesValid && airplaneValid && instructorValid) {
-      section2.classList.add("visible");
-      section2.style.display = "block";
-      setTimeout(() => {
-        section2.style.opacity = "1";
-      }, 10);
-      renderRiskFactors();
-    } else {
-      alert("Please complete all required fields in Section 1 before continuing.");
-    }
-  });
   document.addEventListener("DOMContentLoaded", function() {
     ["change", "input"].forEach(evt => {
       certDropdown.addEventListener(evt, updateSection1Fields);
@@ -377,19 +360,6 @@
     continueButton.disabled = !isComplete;
     return isComplete;
   }
-  // "Continue to Risk Assessment" button handler
-  continueButton.addEventListener("click", () => {
-    if (validateSection1Completion()) {
-      section2.classList.add("visible");
-      section2.style.display = "block";
-      setTimeout(() => {
-        section2.style.opacity = "1";
-      }, 10);
-      renderRiskFactors();
-    } else {
-      alert("Please complete all required fields in Section 1 before continuing.");
-    }
-  });
   // Re-validate on input changes
   ["change", "input"].forEach(evt => {
     certDropdown.addEventListener(evt, validateSection1Completion);
@@ -408,19 +378,21 @@
   airplaneDropdown.addEventListener("change", tryEnableContinueButton);
   instructorDropdown.addEventListener("change", tryEnableContinueButton);
   document.getElementById("continueToSection2").addEventListener("click", function() {
-    const section2 = document.getElementById("section2Container");
-    if (!section2) return;
+    console.log("✅ Continue button clicked");
+    const section2 = document.getElementById("section2");
+    const cert = certDropdown.value;
+    const rules = flightRulesDropdown.value;
+    const airplane = airplaneDropdown.value;
+    const instructorRequired = !instructorDropdown.disabled;
+    const instructorValid = !instructorRequired || instructorDropdown.value !== "";
+    const formComplete = cert && rules && airplane && instructorValid;
+    if (!formComplete) {
+      alert("Please complete all required fields in Section 1 before continuing.");
+      return;
+    }
+    section2.classList.add("visible");
     section2.style.display = "block";
-    section2.style.opacity = 0;
-    section2.style.transform = "translateY(20px)";
-    setTimeout(() => {
-      section2.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-      section2.style.opacity = 1;
-      section2.style.transform = "translateY(0)";
-    }, 10);
-    // Render Risk Matrix on first reveal
     renderRiskFactors();
-    // Scroll to it smoothly
     section2.scrollIntoView({
       behavior: "smooth"
     });
@@ -582,7 +554,7 @@
   }
 </style>
 
-<div id="section2" class="section" style="display: none;">
+<div id="section2" class="section">
   <h2>Section 2: Flight Risk Assessment Tool</h2>
   <div id="riskScoreText">Total Risk Score: 0 — LOW RISK</div>
   <div id="riskProgressBar" class="pill-bar"></div>
