@@ -263,11 +263,17 @@
       alert("Please complete all required fields in Section 1 before continuing.");
     }
   });
-  ["change", "input"].forEach(evt => {
-    certDropdown.addEventListener(evt, validateSection1Completion);
-    flightRulesDropdown.addEventListener(evt, validateSection1Completion);
-    instructorDropdown.addEventListener(evt, validateSection1Completion);
-    document.getElementById('airplaneType').addEventListener(evt, validateSection1Completion);
+  document.addEventListener("DOMContentLoaded", function() {
+    ["change", "input"].forEach(evt => {
+      certDropdown.addEventListener(evt, updateSection1Fields);
+      flightRulesDropdown.addEventListener(evt, updateSection1Fields);
+      renterCheckbox.addEventListener(evt, updateSection1Fields);
+      instrumentCheckbox.addEventListener(evt, updateSection1Fields);
+      instructorDropdown.addEventListener(evt, updateSection1Fields);
+      airplaneDropdown.addEventListener(evt, updateSection1Fields);
+    });
+    // Run once on load
+    updateSection1Fields();
   });
 
   function updateSection1Fields() {
