@@ -100,6 +100,9 @@
   <h2>Area Weather (METARs & TAFs)</h2>
   <button id="refreshWeatherButton">🔄 Refresh Weather</button>
   <pre id="wx-content">Loading...</pre>
+  <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+    <strong>Disclaimer:</strong> This weather data is provided for convenience only and does not replace an official weather briefing. Pilots are responsible for obtaining a complete preflight weather briefing from an FAA-approved source.
+  </p>
 </div>
 
 <div class="frat-section1">
@@ -405,23 +408,23 @@
   airplaneDropdown.addEventListener("change", tryEnableContinueButton);
   instructorDropdown.addEventListener("change", tryEnableContinueButton);
   document.getElementById("continueToSection2").addEventListener("click", function() {
-        const section2 = document.getElementById("section2Container");
-        if (!section2) return;
-        section2.style.display = "block";
-        section2.style.opacity = 0;
-        section2.style.transform = "translateY(20px)";
-        setTimeout(() => {
-          section2.style.transition = "opacity 0.5s ease, transform 0.5s ease";
-          section2.style.opacity = 1;
-          section2.style.transform = "translateY(0)";
-        }, 10);
-        // Render Risk Matrix on first reveal
-        renderRiskFactors();
-        // Scroll to it smoothly
-        section2.scrollIntoView({
-          behavior: "smooth"
-        });
+    const section2 = document.getElementById("section2Container");
+    if (!section2) return;
+    section2.style.display = "block";
+    section2.style.opacity = 0;
+    section2.style.transform = "translateY(20px)";
+    setTimeout(() => {
+      section2.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+      section2.style.opacity = 1;
+      section2.style.transform = "translateY(0)";
+    }, 10);
+    // Render Risk Matrix on first reveal
+    renderRiskFactors();
+    // Scroll to it smoothly
+    section2.scrollIntoView({
+      behavior: "smooth"
     });
+  });
 </script>
 <style>
   /* ────────────────
