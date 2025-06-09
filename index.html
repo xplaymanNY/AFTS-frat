@@ -396,7 +396,6 @@
       return;
     }
     section2.classList.add("visible");
-    section2.style.display = "block";
     renderRiskFactors();
     section2.scrollIntoView({
       behavior: "smooth"
@@ -408,16 +407,21 @@
      SECTION 2 CSS
      ──────────────── */
   #section2 {
-    display: none;
+    visibility: hidden;
+    pointer-events: none;
     opacity: 0;
     max-height: 0;
-    overflow: hidden;
     transform: translateY(20px);
-    transition: all 0.6s ease;
+    transition:
+      opacity 1s ease,
+      max-height 1.2s ease,
+      transform 1s ease;
+    overflow: hidden;
   }
 
   #section2.visible {
-    display: block;
+    visibility: visible;
+    pointer-events: auto;
     opacity: 1;
     max-height: 5000px;
     transform: translateY(0);
