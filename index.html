@@ -406,6 +406,17 @@
     section2.scrollIntoView({
       behavior: "smooth"
     });
+    document.getElementById("continueToSection3").addEventListener("click", function() {
+      const section3 = document.querySelector(".frat-section3");
+      if (!section3) return;
+      section3.classList.add("visible");
+      setTimeout(() => {
+        section3.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      }, 1200);
+    });
   });
 </script>
 <style>
@@ -593,10 +604,15 @@
 
 <div id="section2" class="frat-section2">
   <h2>Section 2: Flight Risk Assessment Tool</h2>
+  <div id="riskFactors"></div>
   <div id="riskScoreText">Total Risk Score: 0 — LOW RISK</div>
   <div id="riskProgressBar" class="pill-bar"></div>
   <button id="clearFRATButton" class="btn-clear-wb">Clear FRAT</button>
-  <div id="riskFactors"></div>
+  <div style="text-align:center; margin-top: 20px;">
+    <button id="continueToSection3" disabled style="padding: 10px 20px; font-size: 1rem;">
+      Continue to Weight & Balance
+    </button>
+  </div>
 </div>
 
 <script>
@@ -1668,6 +1684,7 @@
       }
     });
     lastPillIndex = pillIndex;
+    tryEnableContinueToSection3();
   }
   // Whenever Section 1 changes, re-render Section 2
   document.getElementById('certificateType').addEventListener('change', renderRiskFactors);
@@ -1688,6 +1705,15 @@
     });
     updateRiskSummary();
   });
+
+  function tryEnableContinueToSection3() {
+    const button = document.getElementById("continueToSection3");
+    if (!button) return;
+    const riskText = document.getElementById("riskScoreText")?.textContent || "";
+    // Enable only if NOT showing "EXTREME" in risk summary
+    const isExtreme = riskText.includes("EXTREME");
+    button.disabled = isExtreme || riskText.trim() === "";
+  }
 </script>
 <style>
   /* ─────────────────
@@ -1700,6 +1726,22 @@
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    /* Animation-specific properties */
+    visibility: hidden;
+    pointer-events: none;
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, max-height 1.2s ease, transform 1s ease;
+    overflow: hidden;
+  }
+
+  .frat-section3.visible {
+    visibility: visible;
+    pointer-events: auto;
+    opacity: 1;
+    max-height: 5000px;
+    transform: translateY(0);
   }
 
   .frat-section3 h2 {
