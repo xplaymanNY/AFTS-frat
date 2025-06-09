@@ -1664,12 +1664,26 @@
         pill.style.color = levelColor;
         pill.style.borderColor = levelColor;
         if (typeof lastPillIndex !== "undefined" && pillIndex !== lastPillIndex) {
-          void pill.offsetWidth;
-          pill.classList.add("pill-animate", pillIndex > lastPillIndex ? "sweep-right" : "sweep-left");
-          console.log("Animating pill:", stage, pill.className);
-          setTimeout(() => {
-            pill.classList.remove("pill-animate", "sweep-right", "sweep-left");
-          }, 600);
+          const direction = pillIndex > lastPillIndex ? "sweep-right" : "sweep-left";
+          const step = pillIndex > lastPillIndex ? 1 : -1;
+          const delayPerStep = 300;
+          let current = lastPillIndex;
+          const animateNext = () => {
+            if (current === pillIndex) return;
+            current += step;
+            const stage = stages[current];
+            const pillEl = [...riskProgressBar.querySelectorAll(".pill")][current];
+            if (pillEl) {
+              pillEl.classList.add("pill-animate", direction);
+              setTimeout(() => {
+                pillEl.classList.remove("pill-animate", "sweep-right", "sweep-left");
+                animateNext();
+              }, delayPerStep);
+            } else {
+              animateNext();
+            }
+          };
+          animateNext();
         }
       }
       riskProgressBar.appendChild(pill);
@@ -1796,199 +1810,329 @@
   .btn-clear-wb:hover {
     background: #c0392b;
   }
+
+  .envelope-plot-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+  }
+
+  .chart-wrapper {
+    flex: 1 1 380px;
+    max-width: 600px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    background: #f4f4f4;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
 </style>
 
 <div class="frat-section3">
-  <h2>Section 3: Weight &amp; Balance</h2>
+  <h2>Section 3: Weight & Balance — C172S</h2>
 
-  <div class="wb-container">
-    <!-- Column 1: Inputs -->
-    <div class="wb-column">
-      <label for="emptyWeight" class="required-asterisk">Basic Empty Weight (lbs)</label>
-      <input type="number" id="emptyWeight" min="0" step="1" placeholder="e.g. 1500">
+  <!-- Tail Number Selection -->
+  <label for="tailNumber">Select Tail Number</label>
+  <select id="tailNumber">
+    <option value="">Select Tail Number</option>
+  </select>
 
-      <label for="emptyMoment" class="required-asterisk">Empty Weight Moment (lb-in / 1000)</label>
-      <input type="number" id="emptyMoment" min="0" step="0.1" placeholder="e.g. 50.0">
+  <!-- Weight & Balance Table -->
+  <table class="wb-table">
+    <thead>
+      <tr>
+        <th>Station</th>
+        <th>Weight (lbs)</th>
+        <th>ARM (in)</th>
+        <th>Moment (lb-in / 1000)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Basic Empty Weight</td>
+        <td><input type="number" id="emptyWeight" readonly></td>
+        <td><input type="number" id="emptyARM" readonly></td>
+        <td><input type="number" id="emptyMoment" readonly></td>
+      </tr>
+      <tr>
+        <td>Pilot & Front Passenger<br><small>(Enter combined weight)</small><br><small>Instructor: <span id="displayInstructorWeight">—</span> lbs</small></td>
+        <td><input type="number" id="frontWeight"></td>
+        <td><input type="number" value="37.0" readonly></td>
+        <td><input type="number" id="frontMoment"></td>
+      </tr>
+      <tr>
+        <td>Rear Passengers</td>
+        <td><input type="number" id="rearWeight"></td>
+        <td><input type="number" value="73.0" readonly></td>
+        <td><input type="number" id="rearMoment"></td>
+      </tr>
+      <tr>
+        <td>Fuel<br><small>Max 53 gal, 6 lbs/gal</small></td>
+        <td><input type="number" id="fuelWeight"></td>
+        <td><input type="number" value="48.0" readonly></td>
+        <td><input type="number" id="fuelMoment"></td>
+      </tr>
+      <tr>
+        <td>Baggage Area A</td>
+        <td><input type="number" id="baggageAWeight"></td>
+        <td><input type="number" value="95.0" readonly></td>
+        <td><input type="number" id="baggageAMoment"></td>
+      </tr>
+      <tr>
+        <td>Baggage Area B</td>
+        <td><input type="number" id="baggageBWeight"></td>
+        <td><input type="number" value="123.0" readonly></td>
+        <td><input type="number" id="baggageBMoment"></td>
+      </tr>
+      <tr>
+        <td colspan="4">
+          <hr>
+        </td>
+      </tr>
+      <tr>
+        <td><strong>Ramp Weight</strong></td>
+        <td><input type="number" id="rampWeight" readonly></td>
+        <td><input type="number" id="rampCG" readonly></td>
+        <td><input type="number" id="rampMoment" readonly></td>
+      </tr>
+      <tr>
+        <td>Start-up, Taxi, and Run-up</td>
+        <td><input type="number" value="-8" readonly></td>
+        <td><input type="text" value="—" readonly></td>
+        <td><input type="number" value="-0.4" readonly></td>
+      </tr>
+      <tr>
+        <td><strong>Takeoff Weight</strong></td>
+        <td><input type="number" id="takeoffWeight"></td>
+        <td><input type="number" id="takeoffCG"></td>
+        <td><input type="number" id="takeoffMoment"></td>
+      </tr>
+    </tbody>
+  </table>
 
-      <label for="studentWeight" class="required-asterisk">Student (Pilot) Weight (lbs)</label>
-      <input type="number" id="studentWeight" min="0" step="1" placeholder="Enter your weight">
+  <div id="cgValidation" style="margin-top:10px; font-weight: bold;"></div>
 
-      <label for="instructorWeight">Instructor Weight (lbs)</label>
-      <input type="number" id="instructorWeight" readonly placeholder="Auto-filled">
+  <!-- Placeholders for Station Diagram, Chart, and Plot -->
+  <div class="wb-extras">
+    <h3>Station Diagram (placeholder)</h3>
+    <div class="station-diagram-placeholder">[Station diagram goes here]</div>
 
-      <label for="rearPassengersWeight">Rear Passengers Combined (lbs)</label>
-      <input type="number" id="rearPassengersWeight" min="0" step="1" placeholder="Max 300 lbs">
-
-      <label for="fuelGallons" class="required-asterisk">Fuel (gal)</label>
-      <input type="number" id="fuelGallons" min="0" step="0.1" placeholder="e.g. 10.5">
-
-      <label for="baggageA">Baggage Area A (lbs)</label>
-      <input type="number" id="baggageA" min="0" step="1" placeholder="e.g. 20">
-
-      <label for="baggageB">Baggage Area B (lbs)</label>
-      <input type="number" id="baggageB" min="0" step="1" placeholder="e.g. 10">
+    <h3>Moment Lookup Chart</h3>
+    <div class="moment-chart-placeholder">
+      [Chart image here]
+      <!-- Future: Sliders and snapping interaction -->
     </div>
 
-    <!-- Column 2: Outputs & “Clear W&B” -->
-    <div class="wb-column">
-      <div class="wb-output" id="wbRampWeight">Ramp Weight : —</div>
-      <div class="wb-output" id="wbRampMoment">Ramp Moment : —</div>
-      <div class="wb-output" id="wbCG">Calculated CG : — inches aft of datum</div>
-      <div class="wb-output" id="wbCheck">Weight Check : —</div>
-      <button class="btn-clear-wb" id="clearWBButton">Clear W&B</button>
+    <h3>CG Envelope & Moment/Weight Plot</h3>
+    <div class="envelope-plot-container">
+      <div class="chart-wrapper">
+        <canvas id="cgEnvelopePlot" width="400" height="300"></canvas>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="momentWeightPlot" width="400" height="300"></canvas>
+      </div>
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  // ────────────────────────────────────────
-  // SECTION 3 JS → Weight & Balance Logic
-  // ────────────────────────────────────────
-  const emptyWeightInput = document.getElementById('emptyWeight');
-  const emptyMomentInput = document.getElementById('emptyMoment');
-  const studentWeightInput = document.getElementById('studentWeight');
-  const instructorWeightInput = document.getElementById('instructorWeight');
-  const rearPassengersWeightInput = document.getElementById('rearPassengersWeight');
-  const fuelGallonsInput = document.getElementById('fuelGallons');
-  const baggageAInput = document.getElementById('baggageA');
-  const baggageBInput = document.getElementById('baggageB');
-  const wbRampWeightOut = document.getElementById('wbRampWeight');
-  const wbRampMomentOut = document.getElementById('wbRampMoment');
-  const wbCGOut = document.getElementById('wbCG');
-  const wbCheckOut = document.getElementById('wbCheck');
-  const clearWBButton = document.getElementById('clearWBButton');
-  // Arm data per airplane (inches aft of datum)
-  const armData = {
-    "C172S": {
-      pilotFront: 37,
-      rearPassengers: 73,
-      fuelPerGal: 48, // 6 lb/gal @ 48" arm
-      baggageA: 95,
-      baggageB: 125,
-      rampMax: 2600,
-      momentTol: 100
-    },
-    "C172R": {
-      pilotFront: 37,
-      rearPassengers: 73,
-      fuelPerGal: 48,
-      baggageA: 95,
-      baggageB: 125,
-      rampMax: 2600,
-      momentTol: 100
-    },
-    "C172P": {
-      pilotFront: 37,
-      rearPassengers: 73,
-      fuelPerGal: 48,
-      baggageA: 95,
-      baggageB: 125,
-      rampMax: 2600,
-      momentTol: 100
-    },
-    "C172S-G1000": {
-      pilotFront: 37,
-      rearPassengers: 73,
-      fuelPerGal: 48,
-      baggageA: 95,
-      baggageB: 125,
-      rampMax: 2600,
-      momentTol: 100
-    },
-    "C182T-G1000": {
-      pilotFront: 47,
-      rearPassengers: 75,
-      fuelPerGal: 51,
-      baggageA: 105,
-      baggageB: 125,
-      rampMax: 3100,
-      momentTol: 120
-    },
-    "PA-44-180": {
-      pilotFront: 82,
-      rearPassengers: 65,
-      fuelPerGal: 44,
-      baggageA: 100,
-      baggageB: 130,
-      rampMax: 3800,
-      momentTol: 50
-    }
-  };
+  let cgChart;
 
-  function calculateWB() {
-    const airplane = document.getElementById('airplaneType').value;
-    if (!armData[airplane]) {
-      wbRampWeightOut.textContent = "Ramp Weight : Invalid airplane";
-      return;
+  function renderCGEnvelopePlot() {
+    const ctx = document.getElementById('cgEnvelopePlot').getContext('2d');
+    cgChart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{
+            label: 'CG Envelope (C172S)',
+            data: [{
+                x: 35.0,
+                y: 2200
+              }, {
+                x: 35.0,
+                y: 2350
+              },
+              {
+                x: 37.5,
+                y: 2550
+              }, {
+                x: 47.3,
+                y: 2550
+              },
+              {
+                x: 46.0,
+                y: 2350
+              }, {
+                x: 41.0,
+                y: 2200
+              },
+              {
+                x: 35.0,
+                y: 2200
+              }
+            ],
+            borderColor: 'rgba(0, 128, 0, 0.5)',
+            borderWidth: 2,
+            showLine: true,
+            fill: false,
+            pointRadius: 0
+          },
+          {
+            label: 'Your Takeoff CG',
+            data: [],
+            backgroundColor: 'red',
+            pointRadius: 5
+          }
+        ]
+      },
+      options: {
+        animation: false,
+        responsive: true,
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'CG (inches)'
+            },
+            min: 30,
+            max: 50
+          },
+          y: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: 'Takeoff Weight (lbs)'
+            },
+            min: 2000,
+            max: 2600
+          }
+        },
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+
+    function updateCGDot() {
+      const wt = parseFloat(document.getElementById("takeoffWeight").value);
+      const cg = parseFloat(document.getElementById("takeoffCG").value);
+      const moment = parseFloat(document.getElementById("takeoffMoment").value);
+      const cgPoint = cgChart.data.datasets[1];
+      if (!isNaN(wt) && !isNaN(cg)) {
+        cgPoint.data = [{
+          x: cg,
+          y: wt
+        }];
+        let lower = 0,
+          upper = 0;
+        if (wt <= 2200) {
+          lower = 35.0;
+          upper = 41.0;
+        } else if (wt <= 2350) {
+          lower = 35.0;
+          upper = 46.0;
+        } else if (wt <= 2550) {
+          lower = 37.5;
+          upper = 47.3;
+        } else {
+          cgPoint.backgroundColor = 'red';
+          cgChart.update();
+          return;
+        }
+        cgPoint.backgroundColor = (cg >= lower && cg <= upper) ? 'green' : 'red';
+      } else {
+        cgPoint.data = [];
+      }
+      cgChart.update();
+      const ctx2 = document.getElementById("momentWeightPlot").getContext("2d");
+      if (!window.momentChart) {
+        window.momentChart = new Chart(ctx2, {
+          type: "scatter",
+          data: {
+            datasets: [{
+                label: "Moment Limits",
+                data: [{
+                  x: 70.0,
+                  y: 2200
+                }, {
+                  x: 85.0,
+                  y: 2550
+                }],
+                showLine: true,
+                borderColor: 'rgba(0,0,255,0.3)',
+                fill: false,
+                pointRadius: 0
+              },
+              {
+                label: "Your Takeoff Moment",
+                data: [],
+                backgroundColor: 'purple',
+                pointRadius: 5
+              }
+            ]
+          },
+          options: {
+            animation: false,
+            responsive: true,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Moment (lb-in / 1000)"
+                },
+                min: 60,
+                max: 100
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Takeoff Weight (lbs)"
+                },
+                min: 2000,
+                max: 2600
+              }
+            },
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      }
+      const momentData = window.momentChart.data.datasets[1];
+      if (!isNaN(moment) && !isNaN(wt)) {
+        momentData.data = [{
+          x: moment,
+          y: wt
+        }];
+      } else {
+        momentData.data = [];
+      }
+      window.momentChart.update();
     }
-    const arms = armData[airplane];
-    // Parse inputs (fallback to 0 if blank)
-    const EW = parseFloat(emptyWeightInput.value) || 0;
-    const EM = parseFloat(emptyMomentInput.value) || 0;
-    const SW = parseFloat(studentWeightInput.value) || 0;
-    const IW = parseFloat(instructorWeightInput.value) || 0;
-    const RPW = parseFloat(rearPassengersWeightInput.value) || 0;
-    const FG = parseFloat(fuelGallonsInput.value) || 0;
-    const BA = parseFloat(baggageAInput.value) || 0;
-    const BB = parseFloat(baggageBInput.value) || 0;
-    const PM = (SW * arms.pilotFront) / 1000;
-    const IM = (IW * arms.pilotFront) / 1000;
-    const RM = (RPW * arms.rearPassengers) / 1000;
-    const FuM = (FG * 6 * arms.fuelPerGal) / 1000;
-    const BAM = (BA * arms.baggageA) / 1000;
-    const BBM = (BB * arms.baggageB) / 1000;
-    const rampWt = EW + SW + IW + RPW + (FG * 6) + BA + BB;
-    const rampMo = EM + PM + IM + RM + FuM + BAM + BBM;
-    let cgInches = 0;
-    if (rampWt > 0) {
-      cgInches = (rampMo * 1000) / rampWt;
-    }
-    let checkText = "OK ✅";
-    if (rampWt > arms.rampMax + 1 || rampMo < 0) {
-      checkText = "Check Math ❌";
-    }
-    wbRampWeightOut.textContent = `Ramp Weight : ${rampWt.toFixed(0)} lbs`;
-    wbRampMomentOut.textContent = `Ramp Moment : ${rampMo.toFixed(1)} (lb-in / 1000)`;
-    wbCGOut.textContent = `Calculated CG : ${cgInches.toFixed(1)} in aft of datum`;
-    wbCheckOut.textContent = `Weight Check : ${checkText}`;
+    ["takeoffWeight", "takeoffCG", "takeoffMoment"].forEach(id => {
+      document.getElementById(id).addEventListener("input", updateCGDot);
+    });
   }
-  // Recompute any time a relevant field changes
-  [
-    emptyWeightInput,
-    emptyMomentInput,
-    studentWeightInput,
-    instructorWeightInput,
-    rearPassengersWeightInput,
-    fuelGallonsInput,
-    baggageAInput,
-    baggageBInput,
-    document.getElementById('airplaneType')
-  ].forEach(el => {
-    if (el) el.addEventListener("input", calculateWB);
-  });
-  clearWBButton.addEventListener("click", function(e) {
-    e.preventDefault();
-    emptyWeightInput.value = "";
-    emptyMomentInput.value = "";
-    studentWeightInput.value = "";
-    // Keep instructorWeight alone (it auto-prefills if you re-choose in Section 1)
-    rearPassengersWeightInput.value = "";
-    fuelGallonsInput.value = "";
-    baggageAInput.value = "";
-    baggageBInput.value = "";
-    wbRampWeightOut.textContent = "Ramp Weight : —";
-    wbRampMomentOut.textContent = "Ramp Moment : —";
-    wbCGOut.textContent = "Calculated CG : —";
-    wbCheckOut.textContent = "Weight Check : —";
-  });
+  document.addEventListener("DOMContentLoaded", renderCGEnvelopePlot);
 </script>
+
 <style>
   /* ─────────────────────────────
-     WIDGET #4 CSS → Buttons Only
-     ───────────────────────────── */
+   SECTION 4: Submit + Print Buttons
+   ───────────────────────────── */
   .frat-actions {
     max-width: 800px;
-    margin: 0 auto 20px;
+    margin: 0 auto 30px;
     padding: 10px;
     text-align: center;
   }
@@ -2020,36 +2164,25 @@
   }
 </style>
 
-<div class="frat-actions">
+<div class="frat-actions" id="section4Buttons">
   <button id="submitButton">Submit</button>
   <button id="printButton">Print</button>
 </div>
 
 <script>
-  // ───────────────────────────────────────────────────────
-  // WIDGET #4 JS → Gather everything and build a mailto: link
-  // ───────────────────────────────────────────────────────
   const submitButton = document.getElementById('submitButton');
   const printButton = document.getElementById('printButton');
   submitButton.addEventListener("click", function(e) {
     e.preventDefault();
-    // 1) Validate Section 1 required fields
-    const requiredIds = [
-      'studentName',
-      'flightDate',
-      'certificateType',
-      'flightRules',
-      'airplaneType'
-    ];
+    const requiredIds = ['studentName', 'flightDate', 'certificateType', 'flightRules', 'airplaneType'];
     for (const id of requiredIds) {
       const el = document.getElementById(id);
       if (!el || !el.value) {
         alert("Please fill in all required fields in Section 1.");
-        el.focus();
+        el?.focus();
         return;
       }
     }
-    // If cert requires an instructor, check #instructorName
     const cert = document.getElementById('certificateType').value;
     if ((cert === "Discovery Flight" || cert.startsWith("Student Pilot")) &&
       !document.getElementById('instructorName').value) {
@@ -2057,19 +2190,12 @@
       document.getElementById('instructorName').focus();
       return;
     }
-    // 2) Ensure Section 2 has been rendered
-    const riskText = document.getElementById('riskScoreText').textContent;
-    if (!riskText || riskText.trim() === "") {
-      alert("Please pick a Certificate Type & Flight Rules in Section 1 so Section 2 can display.");
+    const riskText = document.getElementById('riskScoreText')?.textContent;
+    if (!riskText?.trim()) {
+      alert("Please complete Section 2 by selecting Certificate Type & Flight Rules.");
       return;
     }
-    // 3) Validate Section 3 required fields
-    const wbRequired = [
-      'emptyWeight',
-      'emptyMoment',
-      'studentWeight',
-      'fuelGallons'
-    ];
+    const wbRequired = ['emptyWeight', 'emptyMoment', 'studentWeight', 'fuelGallons'];
     for (const id of wbRequired) {
       const el = document.getElementById(id);
       if (!el || el.value === "") {
@@ -2078,98 +2204,68 @@
         return;
       }
     }
-    // Build the mailto: parameters
     const toEmail = "mgutierrez.dfe@gmail.com";
     let ccEmail = "";
-    const certVal = encodeURIComponent(cert);
-    const riskLevelText = riskText; // e.g. "Total Risk Score: 17 — HIGH RISK"
-    if ((/HIGH RISK|EXTREME RISK/).test(riskLevelText)) {
+    const instructorEmails = {
+      "Alexander Kresic": "alex.kresic@gmail.com",
+      "Alexey Ozerov": "alexey.ozerov@airfleettraining.com",
+      "Christopher Darby": "chrisdarby@yahoo.com",
+      "Dmitry Avdeev": "da@airfleettraining.com",
+      "Jay Saduakas": "zhandik.95@gmail.com",
+      "Josselyne Aguilar": "josselyne_saira@outlook.com",
+      "Kyle Lacey": "kyle.lacey@airfleettraining.com",
+      "Mark Gutierrez": "dittos-elvish6h@icloud.com",
+      "Murad Gabr": "murad.n.gabr@gmail.com",
+      "Roman Konyushenko": "rkon3113@gmail.com",
+      "Sham Perera": "flanker92@gmail.com",
+      "Shavon Shirley": "shavon.shirley@airfleettraining.com",
+      "Sheena Masters": "mastersheena@gmail.com",
+      "Tony Hwang": "tonyhwang0407@gmail.com"
+    };
+    if (/HIGH RISK|EXTREME RISK/.test(riskText)) {
       const inst = document.getElementById('instructorName').value;
-      if (inst) {
-        // Map instructor→email (same as before)
-        const instructorEmails = {
-          "Alexander Kresic": "alex.kresic@gmail.com",
-          "Alexey Ozerov": "alexey.ozerov@airfleettraining.com",
-          "Christopher Darby": "chrisdarby@yahoo.com",
-          "Dmitry Avdeev": "da@airfleettraining.com",
-          "Jay Saduakas": "zhandik.95@gmail.com",
-          "Josselyne Aguilar": "josselyne_saira@outlook.com",
-          "Kyle Lacey": "kyle.lacey@airfleettraining.com",
-          "Mark Gutierrez": "dittos-elvish6h@icloud.com",
-          "Murad Gabr": "murad.n.gabr@gmail.com",
-          "Roman Konyushenko": "rkon3113@gmail.com",
-          "Sham Perera": "flanker92@gmail.com",
-          "Shavon Shirley": "shavon.shirley@airfleettraining.com",
-          "Sheena Masters": "mastersheena@gmail.com",
-          "Tony Hwang": "tonyhwang0407@gmail.com"
-        };
-        if (instructorEmails[inst]) {
-          ccEmail = instructorEmails[inst];
-        }
-      }
+      if (inst && instructorEmails[inst]) ccEmail = instructorEmails[inst];
     }
-    const studentNameVal = encodeURIComponent(document.getElementById('studentName').value);
-    const flightDateVal = encodeURIComponent(document.getElementById('flightDate').value);
-    const flightRulesVal = encodeURIComponent(document.getElementById('flightRules').value);
-    const airplaneVal = encodeURIComponent(document.getElementById('airplaneType').value);
-    const renterVal = document.getElementById('renterWithoutInstruction').checked ? "Yes" : "No";
-    const instructorVal = encodeURIComponent(document.getElementById('instructorName').value || "");
-    const passenger1Val = encodeURIComponent(document.getElementById('passenger1').value);
-    const passenger2Val = encodeURIComponent(document.getElementById('passenger2').value);
-    // Section 3 W&B values
-    const EW = encodeURIComponent(document.getElementById('emptyWeight').value);
-    const EM = encodeURIComponent(document.getElementById('emptyMoment').value);
-    const SW = encodeURIComponent(document.getElementById('studentWeight').value);
-    const IW = encodeURIComponent(document.getElementById('instructorWeight').value || "0");
-    const RPW = encodeURIComponent(document.getElementById('rearPassengersWeight').value || "0");
-    const FG = encodeURIComponent(document.getElementById('fuelGallons').value);
-    const BA = encodeURIComponent(document.getElementById('baggageA').value || "0");
-    const BB = encodeURIComponent(document.getElementById('baggageB').value || "0");
-    const rampText = encodeURIComponent(document.getElementById('wbRampWeight').textContent);
-    const rampMoText = encodeURIComponent(document.getElementById('wbRampMoment').textContent);
-    const cgText = encodeURIComponent(document.getElementById('wbCG').textContent);
-    const checkText = encodeURIComponent(document.getElementById('wbCheck').textContent);
-    // Build email body (URL-encoded)
-    let body = "";
-    body += `-- FRAT Submission --%0D%0A`;
-    body += `Student Name: ${studentNameVal}%0D%0A`;
-    body += `Date: ${flightDateVal}%0D%0A`;
-    body += `Certificate: ${certVal}%0D%0A`;
-    body += `Flight Rules: ${flightRulesVal}%0D%0A`;
-    body += `Airplane: ${airplaneVal}%0D%0A`;
-    body += `Renter (no instruction): ${renterVal}%0D%0A`;
-    body += `Instructor: ${instructorVal}%0D%0A`;
-    body += `Passenger1: ${passenger1Val}%0D%0A`;
-    body += `Passenger2: ${passenger2Val}%0D%0A%0D%0A`;
-    body += `-- Risk Summary --%0D%0A`;
-    body += `${riskLevelText}%0D%0A%0D%0A`;
-    body += `-- Weight & Balance --%0D%0A`;
-    body += `Empty Wt: ${EW} lbs%0D%0A`;
-    body += `Empty Moment: ${EM}%0D%0A`;
-    body += `Student Wt: ${SW} lbs%0D%0A`;
-    body += `Instructor Wt: ${IW} lbs%0D%0A`;
-    body += `Rear Passengers: ${RPW} lbs%0D%0A`;
-    body += `Fuel (gal): ${FG}%0D%0A`;
-    body += `Baggage A: ${BA} lbs%0D%0A`;
-    body += `Baggage B: ${BB} lbs%0D%0A`;
-    body += `${rampText}%0D%0A`;
-    body += `${rampMoText}%0D%0A`;
-    body += `${cgText}%0D%0A`;
-    body += `${checkText}%0D%0A`;
-    body += `%0D%0A-- End of Form --%0D%0A`;
-    // Build mailto: link
-    let mailtoLink = `mailto:${toEmail}`;
-    if (ccEmail) {
-      mailtoLink += `?cc=${encodeURIComponent(ccEmail)}&`;
-    } else {
-      mailtoLink += `?`;
-    }
-    mailtoLink += `subject=${encodeURIComponent("FRAT Submission: " + document.getElementById('studentName').value + " / " + document.getElementById('flightDate').value)}`;
+    // Encode inputs
+    const encode = id => encodeURIComponent(document.getElementById(id)?.value || "");
+    const getText = id => encodeURIComponent(document.getElementById(id)?.textContent || "");
+    const body = [
+      "-- FRAT Submission --",
+      `Student Name: ${encode('studentName')}`,
+      `Date: ${encode('flightDate')}`,
+      `Certificate: ${encode('certificateType')}`,
+      `Flight Rules: ${encode('flightRules')}`,
+      `Airplane: ${encode('airplaneType')}`,
+      `Renter (no instruction): ${document.getElementById('renterWithoutInstruction')?.checked ? "Yes" : "No"}`,
+      `Instructor: ${encode('instructorName')}`,
+      `Passenger1: ${encode('passenger1')}`,
+      `Passenger2: ${encode('passenger2')}`,
+      "",
+      "-- Risk Summary --",
+      riskText,
+      "",
+      "-- Weight & Balance --",
+      `Empty Wt: ${encode('emptyWeight')} lbs`,
+      `Empty Moment: ${encode('emptyMoment')}`,
+      `Student Wt: ${encode('studentWeight')} lbs`,
+      `Instructor Wt: ${encode('instructorWeight')}`,
+      `Rear Passengers: ${encode('rearPassengersWeight')} lbs`,
+      `Fuel (gal): ${encode('fuelGallons')}`,
+      `Baggage A: ${encode('baggageA')} lbs`,
+      `Baggage B: ${encode('baggageB')} lbs`,
+      getText('wbRampWeight'),
+      getText('wbRampMoment'),
+      getText('wbCG'),
+      getText('wbCheck'),
+      "",
+      "-- End of Form --"
+    ].join("%0D%0A");
+    let mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent("FRAT Submission: " + document.getElementById('studentName').value + " / " + document.getElementById('flightDate').value")}`;
     mailtoLink += `&body=${body}`;
-    // Open default mail client
+    if (ccEmail) mailtoLink += `&cc=${encodeURIComponent(ccEmail)}`;
     window.location.href = mailtoLink;
   });
-  printButton.addEventListener("click", function(e) {
+  printButton.addEventListener("click", e => {
     e.preventDefault();
     window.print();
   });
