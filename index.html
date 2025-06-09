@@ -112,7 +112,7 @@
     <label for="studentName" class="required-asterisk">1) Student Name</label>
     <input type="text" id="studentName" placeholder="Al Titude" required>
 
-    <label for="flightDate" class="required-asterisk">2) Today's Date</label>
+    <label for="flightDate" class="required-asterisk">2) Date of Flight</label>
     <input type="date" id="flightDate" required>
 
     <label for="certificateType" class="required-asterisk">3) Certificate Type</label>
@@ -554,7 +554,7 @@
   }
 </style>
 
-<div id="section2" class="section">
+<div id="section2" class="frat-section2">
   <h2>Section 2: Flight Risk Assessment Tool</h2>
   <div id="riskScoreText">Total Risk Score: 0 — LOW RISK</div>
   <div id="riskProgressBar" class="pill-bar"></div>
@@ -1375,7 +1375,10 @@
     // Conditional Group Filtering
     if (rules !== "VFR") delete groups["VFR Flight Plan"];
     if (rules !== "IFR") delete groups["IFR Flight Plan"];
-    if (!isInstrumentRated) delete groups["Best Available Approach"];
+    const hasInstructor = document.getElementById('instructorName').value !== "";
+    if (!(isInstrumentRated || (rules === "IFR" && hasInstructor))) {
+      delete groups["Best Available Approach"];
+    }
     return groups;
   }
   // Draw all checkboxes into #riskFactors
@@ -1523,6 +1526,21 @@
     // +5 if IFR and six-pack airplane
     if (rules === "IFR" && ["C172S", "C172R", "C172P", "PA-44-180"].includes(airplane)) {
       score += 5;
+    }
+    // Special NO-GO rule for IFR without Instructor or Dual
+    const instructorSelected = document.getElementById('instructorName').value !== "";
+    if (rules === "IFR" && !instructorSelected && !isDualInstruction) {
+      const irCheckbox = [...riskContainer.querySelectorAll("label")]
+        .find(l => l.textContent?.trim() === "Instrument Rating current and proficient")
+        ?.previousElementSibling;
+      if (irCheckbox && !irCheckbox.checked) {
+        hasUnmitigatedNoGo = true;
+        const span = irCheckbox.parentElement.querySelector("span");
+        if (span) {
+          span.textContent = "(NO-GO)";
+          span.style.color = "red";
+        }
+      }
     }
     let riskLevel = "";
     let levelColor = "";
