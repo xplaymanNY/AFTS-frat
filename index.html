@@ -1354,31 +1354,40 @@
     const cert = document.getElementById('certificateType').value;
     const rules = document.getElementById('flightRules').value;
     const isRenter = document.getElementById('renterWithoutInstruction').checked;
-    const isInstrumentRated = document.getElementById('instrumentRated').checked ||
-      cert === "Airline Transport Pilot";
+    const isInstrumentRated = document.getElementById('instrumentRated').checked || cert === "Airline Transport Pilot";
+    const hasInstructor = document.getElementById('instructorName').value !== "";
     if (!cert) return {};
-    // Start from the base certificate
+    // Start from base cert
     const baseKey = riskData[cert] ? cert : "Student Pilot (Local Flight)";
     const groups = deepClone(riskData[baseKey] || {});
-    // Append renter-only risks
+    // Merge Renter group
     if (isRenter && riskData["Renter without Instruction"]) {
       for (const grp in riskData["Renter without Instruction"]) {
         groups[grp] = (groups[grp] || []).concat(riskData["Renter without Instruction"][grp]);
       }
     }
-    // Append instrument-rated risks
-    if (isInstrumentRated && riskData["Instrument Rated"]) {
+    // Merge Instrument Rated group
+    const allowBAA = isInstrumentRated || (rules === "IFR" && hasInstructor);
+    if (riskData["Instrument Rated"]) {
       for (const grp in riskData["Instrument Rated"]) {
+        if (!allowBAA && grp === "Best Available Approach") continue;
         groups[grp] = (groups[grp] || []).concat(riskData["Instrument Rated"][grp]);
       }
     }
-    // Conditional Group Filtering
+    // De-dupe by label
+    for (const grp in groups) {
+      const seen = new Set();
+      groups[grp] = groups[grp].filter(item => {
+        const key = item.label;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+    // Conditional plan removal
     if (rules !== "VFR") delete groups["VFR Flight Plan"];
     if (rules !== "IFR") delete groups["IFR Flight Plan"];
-    const hasInstructor = document.getElementById('instructorName').value !== "";
-    if (!(isInstrumentRated || (rules === "IFR" && hasInstructor))) {
-      delete groups["Best Available Approach"];
-    }
+    if (!allowBAA) delete groups["Best Available Approach"];
     return groups;
   }
   // Draw all checkboxes into #riskFactors
