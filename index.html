@@ -1527,9 +1527,8 @@
     if (rules === "IFR" && ["C172S", "C172R", "C172P", "PA-44-180"].includes(airplane)) {
       score += 5;
     }
-    // Special NO-GO rule for IFR without Instructor or Dual
-    const instructorSelected = document.getElementById('instructorName').value !== "";
-    if (rules === "IFR" && !instructorSelected && !isDualInstruction) {
+    // NO-GO if "Instrument Rating current and proficient" is false, rules are IFR, and not Dual
+    if (rules === "IFR" && !isDualInstruction) {
       const irCheckbox = [...riskContainer.querySelectorAll("label")]
         .find(l => l.textContent?.trim() === "Instrument Rating current and proficient")
         ?.previousElementSibling;
