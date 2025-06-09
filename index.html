@@ -16,18 +16,24 @@
      ───────────── */
   .wx-briefing {
     background: #f9f9f9;
-    padding: 10px;
-    margin-bottom: 15px;
+    padding: 6px 10px;
+    /* reduce vertical padding */
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     font-family: monospace;
+    font-size: 0.9em;
     white-space: pre-wrap;
   }
 
+  .wx-briefing h2 {
+    margin: 0;
+    font-size: 1.1em;
+  }
+
   .wx-briefing button {
-    margin-bottom: 10px;
-    padding: 5px 10px;
-    font-size: 0.9em;
-    cursor: pointer;
+    margin: 4px 0 8px 10px;
+    padding: 3px 8px;
+    font-size: 0.85em;
   }
 
   .frat-section1 {
@@ -97,8 +103,7 @@
 </style>
 
 <div id="wx-briefing" class="wx-briefing">
-  <h2>Area Weather (METARs & TAFs)</h2>
-  <button id="refreshWeatherButton">🔄 Refresh Weather</button>
+  <h2>Area Weather (METARs & TAFs) <button id="refreshWeatherButton">🔄 Refresh Weather</button></h2>
   <pre id="wx-content">Loading...</pre>
   <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
     <strong>Disclaimer:</strong> This weather data is provided for convenience only and does not replace an official weather briefing. Pilots are responsible for obtaining a complete preflight weather briefing from an FAA-approved source.
