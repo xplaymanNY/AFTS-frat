@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FRAT Proof-of-Concept</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <!-- ───────────────────────────────────────────────
@@ -2162,6 +2163,12 @@
   #printButton:hover {
     background: #2980b9;
   }
+
+  @media print {
+    #wx-briefing {
+      display: none !important;
+    }
+  }
 </style>
 
 <div class="frat-actions" id="section4Buttons">
@@ -2172,8 +2179,9 @@
 <script>
   const submitButton = document.getElementById('submitButton');
   const printButton = document.getElementById('printButton');
-  submitButton.addEventListener("click", function(e) {
+  submitButton.addEventListener("click", async function(e) {
     e.preventDefault();
+    // ─── Validate Required Fields ───
     const requiredIds = ['studentName', 'flightDate', 'certificateType', 'flightRules', 'airplaneType'];
     for (const id of requiredIds) {
       const el = document.getElementById(id);
@@ -2184,85 +2192,69 @@
       }
     }
     const cert = document.getElementById('certificateType').value;
-    if ((cert === "Discovery Flight" || cert.startsWith("Student Pilot")) &&
-      !document.getElementById('instructorName').value) {
+    const instructor = document.getElementById('instructorName').value;
+    if ((cert === "Discovery Flight" || cert.startsWith("Student Pilot")) && !instructor) {
       alert("Please select an Instructor for Discovery/Student Pilot flights.");
       document.getElementById('instructorName').focus();
       return;
     }
-    const riskText = document.getElementById('riskScoreText')?.textContent;
-    if (!riskText?.trim()) {
-      alert("Please complete Section 2 by selecting Certificate Type & Flight Rules.");
-      return;
-    }
-    const wbRequired = ['emptyWeight', 'emptyMoment', 'studentWeight', 'fuelGallons'];
-    for (const id of wbRequired) {
-      const el = document.getElementById(id);
-      if (!el || el.value === "") {
-        alert("Please complete all required fields in Section 3 (Empty Wt, Empty Moment, Student Wt, Fuel).");
-        el.focus();
-        return;
-      }
-    }
-    const toEmail = "mgutierrez.dfe@gmail.com";
-    let ccEmail = "";
-    const instructorEmails = {
-      "Alexander Kresic": "alex.kresic@gmail.com",
-      "Alexey Ozerov": "alexey.ozerov@airfleettraining.com",
-      "Christopher Darby": "chrisdarby@yahoo.com",
-      "Dmitry Avdeev": "da@airfleettraining.com",
-      "Jay Saduakas": "zhandik.95@gmail.com",
-      "Josselyne Aguilar": "josselyne_saira@outlook.com",
-      "Kyle Lacey": "kyle.lacey@airfleettraining.com",
-      "Mark Gutierrez": "dittos-elvish6h@icloud.com",
-      "Murad Gabr": "murad.n.gabr@gmail.com",
-      "Roman Konyushenko": "rkon3113@gmail.com",
-      "Sham Perera": "flanker92@gmail.com",
-      "Shavon Shirley": "shavon.shirley@airfleettraining.com",
-      "Sheena Masters": "mastersheena@gmail.com",
-      "Tony Hwang": "tonyhwang0407@gmail.com"
-    };
-    if (/HIGH RISK|EXTREME RISK/.test(riskText)) {
-      const inst = document.getElementById('instructorName').value;
-      if (inst && instructorEmails[inst]) ccEmail = instructorEmails[inst];
-    }
-    // Encode inputs
-    const encode = id => encodeURIComponent(document.getElementById(id)?.value || "");
-    const getText = id => encodeURIComponent(document.getElementById(id)?.textContent || "");
-    const body = [
-      "-- FRAT Submission --",
-      `Student Name: ${encode('studentName')}`,
-      `Date: ${encode('flightDate')}`,
-      `Certificate: ${encode('certificateType')}`,
-      `Flight Rules: ${encode('flightRules')}`,
-      `Airplane: ${encode('airplaneType')}`,
-      `Renter (no instruction): ${document.getElementById('renterWithoutInstruction')?.checked ? "Yes" : "No"}`,
-      `Instructor: ${encode('instructorName')}`,
-      `Passenger1: ${encode('passenger1')}`,
-      `Passenger2: ${encode('passenger2')}`,
-      "",
-      "-- Risk Summary --",
-      riskText,
-      "",
-      "-- Weight & Balance --",
-      `Empty Wt: ${encode('emptyWeight')} lbs`,
-      `Empty Moment: ${encode('emptyMoment')}`,
-      `Student Wt: ${encode('studentWeight')} lbs`,
-      `Instructor Wt: ${encode('instructorWeight')}`,
-      `Rear Passengers: ${encode('rearPassengersWeight')} lbs`,
-      `Fuel (gal): ${encode('fuelGallons')}`,
-      `Baggage A: ${encode('baggageA')} lbs`,
-      `Baggage B: ${encode('baggageB')} lbs`,
-      getText('wbRampWeight'),
-      getText('wbRampMoment'),
-      getText('wbCG'),
-      getText('wbCheck'),
-      "",
-      "-- End of Form --"
-    ].join("%0D%0A");
-    let mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent("FRAT Submission: " + document.getElementById('studentName').value + " / " + document.getElementById('flightDate').value")}`;
-    mailtoLink += `&body=${body}`;
-    if (ccEmail) mailtoLink += `&cc=${encodeURIComponent(ccEmail)}`;
+    const riskText = document.getElementById('riskScoreText')?.textContent || "Unknown";
+    const studentName = document.getElementById("studentName").value;
+    const flightDate = document.getElementById("flightDate").value;
+    // ─── TEMP: Basic W&B Check (placeholder logic) ───
+    const wbStatus = "✅ W&B OK"; // <-- Replace with dynamic check later
+    // ─── Generate PDF using jsPDF ───
+    const {
+      jsPDF
+    } = window.jspdf;
+    const doc = new jsPDF();
+    let y = 10;
+    doc.text("Flight Risk Assessment Tool Submission", 10, y);
+    y += 10;
+    doc.text(`Student: ${studentName}`, 10, y);
+    y += 8;
+    doc.text(`Date: ${flightDate}`, 10, y);
+    y += 8;
+    doc.text(`Certificate: ${cert}`, 10, y);
+    y += 8;
+    doc.text(`Flight Rules: ${document.getElementById("flightRules").value}`, 10, y);
+    y += 8;
+    doc.text(`Airplane: ${document.getElementById("airplaneType").value}`, 10, y);
+    y += 8;
+    doc.text(`Instructor: ${instructor || "N/A"}`, 10, y);
+    y += 8;
+    doc.text(`Passenger 1: ${document.getElementById("passenger1").value}`, 10, y);
+    y += 8;
+    doc.text(`Passenger 2: ${document.getElementById("passenger2").value}`, 10, y);
+    y += 12;
+    doc.text("Risk Summary:", 10, y);
+    y += 8;
+    doc.text(riskText, 10, y);
+    y += 10;
+    doc.text("W&B Check:", 10, y);
+    y += 8;
+    doc.text(wbStatus, 10, y);
+    // Trigger download
+    doc.save(`FRAT_${studentName}_${flightDate}.pdf`);
+    // ─── Build Email ───
+    const emailTo = "mgutierrez.dfe@gmail.com";
+    const subject = `FRAT Submission – ${studentName} (${flightDate})`;
+    const bodyLines = [
+      `Flight Risk Assessment Submission`,
+      ``,
+      `🧑‍✈️ Student: ${studentName}`,
+      `📅 Date: ${flightDate}`,
+      `🎓 Certificate: ${cert}`,
+      `📋 Risk: ${riskText}`,
+      `⚖️ W&B: ${wbStatus}`,
+      ``,
+      `📎 PDF has been downloaded. Please attach it to this email.`,
+      ``,
+      `— End of Summary —`
+    ];
+    const body = encodeURIComponent(bodyLines.join('\n'));
+    const mailtoLink = `mailto:${emailTo}?subject=${encodeURIComponent(subject)}&body=${body}`;
+    // Open default mail client
     window.location.href = mailtoLink;
   });
   printButton.addEventListener("click", e => {
