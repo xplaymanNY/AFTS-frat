@@ -396,6 +396,12 @@
       return;
     }
     section2.classList.add("visible");
+    setTimeout(() => {
+      section2.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }, 1200);
     renderRiskFactors();
     section2.scrollIntoView({
       behavior: "smooth"
@@ -479,6 +485,15 @@
     display: flex;
     align-items: center;
     margin: 6px 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    will-change: opacity, transform;
+  }
+
+  #riskFactors .item-row.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   #riskFactors .item-row label {
@@ -1441,6 +1456,9 @@
         row.appendChild(riskLabel);
         row.appendChild(valueDisplay);
         itemWrap.appendChild(row);
+        setTimeout(() => {
+          row.classList.add("visible");
+        }, 100 * idx);
       });
       groupWrapper.appendChild(header);
       groupWrapper.appendChild(itemWrap);
