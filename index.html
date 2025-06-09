@@ -1402,8 +1402,17 @@
     // Merge Instrument Rated group
     const allowBAA = isInstrumentRated || (rules === "IFR" && hasInstructor);
     if (riskData["Instrument Rated"]) {
+      const restrictedCerts = [
+        "Discovery Flight",
+        "Student Pilot (Local Flight)",
+        "Student Pilot (Cross-Country Flight)",
+        "Airline Transport Pilot"
+      ];
+      const allowIRPilotGroup = isInstrumentRated && !restrictedCerts.includes(cert);
+      const allowBAA = isInstrumentRated || (rules === "IFR" && hasInstructor);
       for (const grp in riskData["Instrument Rated"]) {
-        if (!allowBAA && grp === "Best Available Approach") continue;
+        if (grp === "Pilot" && !allowIRPilotGroup) continue;
+        if (grp === "Best Available Approach" && !allowBAA) continue;
         groups[grp] = (groups[grp] || []).concat(riskData["Instrument Rated"][grp]);
       }
     }
