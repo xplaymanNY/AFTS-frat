@@ -907,7 +907,21 @@
   }
 
   function hasConvectiveActivity(text) {
-    return /(?:\s|^)(CB|TS|TSRA|VCTS|VCTSRA)(?:\s|$)/i.test(text);
+    const keywords = [
+      /\bCB\b/, // Cumulonimbus clouds
+      /\bCBMAM\b/, // Cumulonimbus mammatus
+      /\bTS\b/, // Thunderstorms (TSRA, -TSRA, +TSRA)
+      /\bVCTS\b/, // Thunderstorms in vicinity
+      /\bLTG\b/, // Lightning
+      /\bTSNO\b/, // Thunderstorms recently ended
+      /\+TS\b/, // Intense thunderstorms
+      /\bTSRA\b/, // Thunderstorm with rain
+      /\bTSTORM\b/, // Verbose thunderstorm reference (rare)
+      /\b+RA\b/, // Heavy rain alone doesn't always mean CB but can support
+      /\bFC\b/, // Funnel cloud/tornado (often convective)
+      /\bTORNADO\b/, // Rare, plain-text form (TAF-only maybe)
+    ];
+    return keywords.some(rx => rx.test(text.toUpperCase()));
   }
 </script>
 
