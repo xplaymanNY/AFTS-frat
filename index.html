@@ -196,6 +196,24 @@
   .wx-line-block {
     margin-bottom: 6px;
   }
+
+  .pulse-border {
+    animation: pulse-border 1.5s infinite ease-in-out;
+  }
+
+  @keyframes pulse-border {
+    0% {
+      box-shadow: 0 0 0 0 rgba(220, 50, 47, 0.4);
+    }
+
+    50% {
+      box-shadow: 0 0 0 6px rgba(220, 50, 47, 0.1);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(220, 50, 47, 0.0);
+    }
+  }
 </style>
 
 <div id="wx-briefing" class="wx-briefing">
@@ -441,19 +459,25 @@
       const kcdw = blocks.find(b => b.startsWith("KCDW"));
       const others = blocks.filter(b => !b.startsWith("KCDW"));
       const kcdwCategory = getFlightCategoryFromMETAR(kcdw);
-      console.log("KCDW category:", kcdwCategory);
+      const kcdwPulse = shouldPulseFromWind(kcdw) ? " pulse-border" : "";
       kcdwDiv.innerHTML = `
   <div class="wx-line-block wx-${kcdwCategory}">
-    <pre>${kcdw.replace(/\n/g, "<br>")}</pre>
+    <pre class="${kcdwPulse.trim()}">${kcdw.replace(/\n/g, "<br>")}</pre>
   </div>
 `;
       extraDiv.innerHTML = others.map(block => {
-        const category = getFlightCategoryFromMETAR(block);
-        console.log("METAR:", block, "→ Category:", category);
-        console.log("Applying category:", category);
+        const isTAF = block.startsWith("K") && block.includes("FM") && block.includes("/");
+        const category = isTAF ?
+          getFlightCategoryFromTAF(block) :
+          getFlightCategoryFromMETAR(block);
+        const pulse = (isTAF ?
+          shouldPulseFromTAF(block) :
+          shouldPulseFromWind(block)) ? " pulse-border" : "";
+        console.log("Block type:", isTAF ? "TAF" : "METAR");
+        console.log("→ Category:", category, "Pulse:", !!pulse);
         return `
     <div class="wx-line-block wx-${category}">
-      <pre>${block.replace(/\n/g, "<br>")}</pre>
+      <pre class="${pulse.trim()}">${block.replace(/\n/g, "<br>")}</pre>
     </div>
   `;
       }).join('');
@@ -692,6 +716,71 @@
       console.warn("Unable to parse METAR:", metar);
     }
     return "unknown";
+  }
+
+  function shouldPulseFromWind(metar) {
+    try {
+      const windMatch = metar.match(/(\d{3}|VRB)(\d{2,3})(G(\d{2,3}))?KT/);
+      if (!windMatch) return false;
+      const windSpeed = parseInt(windMatch[2], 10);
+      const gust = windMatch[4] ? parseInt(windMatch[4], 10) : 0;
+      return windSpeed >= 16 || gust >= 16;
+    } catch (e) {
+      console.warn("Wind parsing failed:", metar);
+      return false;
+    }
+  }
+
+  function getFlightCategoryFromTAF(taf) {
+    const lines = taf.split(/\n|<br>/);
+    const todayUTC = new Date().getUTCDate().toString().padStart(2, "0");
+    console.log("🔍 TAF lines:", lines);
+    const forecastLines = lines.filter(line => {
+      const trimmed = line.trim();
+      const match = trimmed.match(/^FM(\d{2})\d{4}/);
+      if (!match) {
+        console.log("⛔️ Skipping non-FM line:", line);
+        return false;
+      }
+      const matchDay = match[1];
+      const keep = matchDay === todayUTC;
+      console.log(`${keep ? "✅" : "⏭️"} FM line with day ${matchDay}:`, line);
+      return keep;
+    });
+    const categories = forecastLines
+      .map(line => {
+        const cat = getFlightCategoryFromMETAR(line);
+        console.log("→ Evaluated category:", cat, "for:", line);
+        return cat;
+      })
+      .filter(cat => ["lifr", "ifr", "mvfr", "vfr"].includes(cat));
+    if (!categories.length) {
+      console.log("🚫 No categories matched. Returning 'unknown'");
+      return "unknown";
+    }
+    const priority = {
+      lifr: 4,
+      ifr: 3,
+      mvfr: 2,
+      vfr: 1
+    };
+    categories.sort((a, b) => priority[b] - priority[a]);
+    const worst = categories[0];
+    console.log("✅ Worst TAF category for today:", worst);
+    return worst;
+  }
+
+  function shouldPulseFromTAF(taf) {
+    const lines = taf.split(/\n|<br>/);
+    const todayUTC = new Date().getUTCDate().toString().padStart(2, "0");
+    return lines.some(line => {
+      const trimmed = line.trim();
+      const match = trimmed.match(/^FM(\d{2})\d{4}.*?(\d{3}|VRB)(\d{2,3})(G(\d{2,3}))?KT/);
+      if (!match || match[1] !== todayUTC) return false;
+      const wind = parseInt(match[3], 10);
+      const gust = match[5] ? parseInt(match[5], 10) : 0;
+      return wind >= 16 || gust >= 16;
+    });
   }
 </script>
 
