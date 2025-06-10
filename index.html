@@ -37,6 +37,20 @@
     font-size: 0.85em;
   }
 
+  .wx-briefing pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: monospace;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+  }
+
+  .wx-line-block {
+    border-bottom: 1px solid #ccc;
+    padding: 6px 0;
+  }
+
   .frat-section1 {
     font-family: Arial, sans-serif;
     max-width: 800px;
@@ -234,7 +248,10 @@
       const response = await fetch(`${proxyUrl}?ids=${stationIDs}`);
       if (!response.ok) throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
       const text = await response.text();
-      wxContent.textContent = text.trim() || "No data received.";
+      wxContent.innerHTML = text.trim()
+        .split(/\n(?=K[A-Z]{3} )/)
+        .map(block => `<div class="wx-line-block">${block.replace(/\n/g, '<br>')}</div>`)
+        .join('');
     } catch (err) {
       console.error("Weather fetch error:", err);
       wxContent.textContent = "❌ Unable to fetch weather data.\nCheck console for details.";
@@ -420,11 +437,11 @@
     });
   });
 </script>
-  
-  <!-- ──────────
+
+<!-- ──────────
      SECTION 2
      ────────── -->
-  
+
 <style>
   /* ────────────────
      SECTION 2 CSS
@@ -1735,11 +1752,11 @@
     button.disabled = isExtreme || riskText.trim() === "";
   }
 </script>
-  
-  <!-- ──────────
+
+<!-- ──────────
      SECTION 3
      ────────── -->
-  
+
 <style>
   /* ─────────────────
      SECTION 3 CSS
