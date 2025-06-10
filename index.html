@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FRAT Proof-of-Concept</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
 </head>
 
 <!-- ──────────
@@ -15,49 +16,78 @@
   /* ─────────────
      SECTION 1 CSS
      ───────────── */
+  body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #ffffff;
+    color: #333;
+  }
+
   .wx-briefing {
-    background: #f9f9f9;
-    padding: 6px 10px;
-    /* reduce vertical padding */
-    margin-bottom: 10px;
+    background: #eef2f5;
     border: 1px solid #ccc;
-    font-family: monospace;
-    font-size: 0.9em;
-    white-space: pre-wrap;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 20px auto;
+    max-width: 900px;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
   }
 
   .wx-briefing h2 {
-    margin: 0;
-    font-size: 1.1em;
+    margin-top: 0;
+    font-size: 1.05rem;
+    color: #0d3b66;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .wx-briefing button {
-    margin: 4px 0 8px 10px;
-    padding: 3px 8px;
-    font-size: 0.85em;
+    background-color: #0d3b66;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  .wx-briefing button:hover {
+    background-color: #0a2f54;
   }
 
   .wx-briefing pre {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 6px;
     white-space: pre-wrap;
     word-break: break-word;
     font-family: monospace;
     line-height: 1.4;
-    margin: 0;
-    padding: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 0.8rem;
   }
 
-  .wx-line-block {
-    border-bottom: 1px solid #ccc;
-    padding: 6px 0;
+  .wx-briefing p {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 12px;
   }
 
   .frat-section1 {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
   }
 
   .frat-section1 h2 {
@@ -115,12 +145,39 @@
     left: 0;
     z-index: 10;
   }
+
+  #toggleWxButton {
+    background-color: #0d3b66;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  #toggleWxButton:hover {
+    background-color: #0a2f54;
+  }
 </style>
 
 <div id="wx-briefing" class="wx-briefing">
-  <h2>Area Weather (METARs & TAFs) <button id="refreshWeatherButton">🔄 Refresh Weather</button></h2>
-  <pre id="wx-content">Loading...</pre>
-  <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+  <h2>
+    Area Weather (METARs & TAFs)
+    <span>
+      <button id="refreshWeatherButton">🔄 Refresh</button>
+      <button id="toggleWxButton">Show Nearby Weather</button>
+    </span>
+  </h2>
+
+  <div id="wx-kcdw">
+    <pre>Loading...</pre>
+  </div>
+  <div id="wx-extra" style="display: none;"></div>
+
+  <p style="font-size: 0.85em; color: #666; margin-top: 10px;">
     <strong>Disclaimer:</strong> This weather data is provided for convenience only and does not replace an official weather briefing. Pilots are responsible for obtaining a complete preflight weather briefing from an FAA-approved source.
   </p>
 </div>
@@ -335,26 +392,35 @@
   const continueButton = document.getElementById("continueToSection2");
   const section2 = document.getElementById("section2");
   async function loadWeather() {
-    const wxContent = document.getElementById('wx-content');
+    const kcdwDiv = document.getElementById('wx-kcdw');
+    const extraDiv = document.getElementById('wx-extra');
     const proxyUrl = "https://script.google.com/macros/s/AKfycbwLouFh4fZ6O1qV1n2fnI4VYCcujzBFuIIN3wrYscGnSlpjbdtvnU_x3ANHWTTN_4bw/exec";
     const stationIDs = "KCDW,KMMU,KTEB";
-    wxContent.textContent = "Fetching latest METARs and TAFs...";
+    kcdwDiv.innerHTML = "<pre>Fetching latest METARs and TAFs...</pre>";
+    extraDiv.innerHTML = "";
     try {
       const response = await fetch(`${proxyUrl}?ids=${stationIDs}`);
       if (!response.ok) throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
       const text = await response.text();
-      wxContent.innerHTML = text.trim()
-        .split(/\n(?=K[A-Z]{3} )/)
-        .map(block => `<div class="wx-line-block">${block.replace(/\n/g, '<br>')}</div>`)
-        .join('');
+      const blocks = text.trim().split(/\n(?=K[A-Z]{3} )/);
+      const kcdw = blocks.find(b => b.startsWith("KCDW"));
+      const others = blocks.filter(b => !b.startsWith("KCDW"));
+      kcdwDiv.innerHTML = `<pre class="wx-line-block">${kcdw.replace(/\n/g, "<br>")}</pre>`;
+      extraDiv.innerHTML = others.map(block => `<div class="wx-line-block"><pre>${block.replace(/\n/g, "<br>")}</pre></div>`).join('');
     } catch (err) {
       console.error("Weather fetch error:", err);
-      wxContent.textContent = "❌ Unable to fetch weather data.\nCheck console for details.";
+      kcdwDiv.innerHTML = "<pre>❌ Unable to fetch weather data.\nCheck console for details.</pre>";
     }
   }
   document.addEventListener("DOMContentLoaded", () => {
-    loadWeather(); // auto-run
-    document.getElementById("refreshWeatherButton").addEventListener("click", loadWeather);
+    loadWeather();
+    const toggleBtn = document.getElementById("toggleWxButton");
+    const extraDiv = document.getElementById("wx-extra");
+    toggleBtn.addEventListener("click", () => {
+      const isVisible = extraDiv.style.display === "block";
+      extraDiv.style.display = isVisible ? "none" : "block";
+      toggleBtn.textContent = isVisible ? "Show Full Weather" : "Hide Weather";
+    });
   });
 
   function validateSection1Completion() {
@@ -576,12 +642,13 @@
   }
 
   .frat-section2 {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
   }
 
   #clearFRATButton {
@@ -683,12 +750,15 @@
 
   .btn-clear-frat {
     margin-top: 10px;
-    padding: 8px 12px;
-    background: #e74c3c;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    background-color: #ec1c24;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.3s ease;
   }
 
   .btn-clear-frat:hover {
@@ -1870,12 +1940,13 @@
      SECTION 3 CSS
      ───────────────── */
   .frat-section3 {
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
     /* Animation-specific properties */
     visibility: hidden;
     pointer-events: none;
@@ -1934,13 +2005,16 @@
   }
 
   .btn-clear-wb {
-    margin: 10px 0 0;
-    padding: 8px 12px;
-    background: #e74c3c;
+    margin-top: 10px;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    background-color: #ec1c24;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.3s ease;
   }
 
   .btn-clear-wb:hover {
@@ -2327,28 +2401,32 @@
 
   .frat-actions button {
     margin: 0 8px;
-    padding: 10px 16px;
+    padding: 12px 24px;
     font-size: 1rem;
+    font-weight: 600;
     border: none;
-    border-radius: 4px;
+    border-radius: 25px;
     cursor: pointer;
     color: #fff;
+    transition: background 0.3s ease;
   }
 
   #submitButton {
-    background: #2ecc71;
+    background-color: #ec1c24;
+    color: #fff;
   }
 
   #submitButton:hover {
-    background: #27ae60;
+    background-color: #b8171d;
   }
 
   #printButton {
-    background: #3498db;
+    background-color: #0d3b66;
+    color: #fff;
   }
 
   #printButton:hover {
-    background: #2980b9;
+    background-color: #0a2f54;
   }
 
   @media print {
