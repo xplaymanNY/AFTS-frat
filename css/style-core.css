@@ -1,0 +1,146 @@
+/* Global Styles and Shared Components */
+body {
+  font-family: 'Open Sans', sans-serif;
+  background-color: #ffffff;
+  color: #333;
+}
+
+.required-asterisk::after {
+  content: " *";
+  color: red;
+}
+
+.disabled-block {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tooltip-disabled:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Weather Section Reusable Elements */
+.wx-briefing {
+  background: #eef2f5;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 20px auto;
+  max-width: 900px;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.wx-briefing h2 {
+  margin-top: 0;
+  font-size: 1.05rem;
+  color: #0d3b66;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wx-briefing pre {
+  background: white;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.wx-briefing p {
+  font-size: 0.75rem;
+  color: #666;
+  margin-top: 12px;
+}
+
+/* Common Button Styling */
+button,
+#toggleWxButton,
+#refreshWeatherButton {
+  background-color: #0d3b66;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+}
+
+button:hover,
+#toggleWxButton:hover {
+  background-color: #0a2f54;
+}
+
+/* Weather Category Borders */
+.wx-vfr pre {
+  border: 2px solid rgba(144, 238, 144, 0.5);
+}
+.wx-mvfr pre {
+  border: 2px solid rgba(173, 216, 230, 0.5);
+}
+.wx-ifr pre {
+  border: 2px solid rgba(220, 50, 47, 0.5);
+}
+.wx-lifr pre {
+  border: 2px solid rgba(255, 0, 255, 0.4);
+}
+
+/* Animations for Risk Weather */
+.pulse-border {
+  border: 2px solid #d00;
+  animation: pulse-ring 1s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { border-color: #d00; }
+  50% { border-color: transparent; }
+}
+
+.convective-flag {
+  outline: 2px dashed orange;
+  outline-offset: -4px;
+  animation: flash-outline 1s linear infinite;
+  position: relative;
+}
+
+.convective-flag::after {
+  content: "⚡";
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  font-size: 1.1em;
+  animation: flash-emoji 1s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes flash-outline {
+  0%, 100% { outline-color: orange; }
+  50% { outline-color: transparent; }
+}
+
+@keyframes flash-emoji {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
