@@ -198,20 +198,108 @@
   }
 
   .pulse-border {
-    animation: pulse-border 1.5s infinite ease-in-out;
+    border: 2px solid #d00;
+    animation: pulse-ring 1s ease-in-out infinite;
   }
 
-  @keyframes pulse-border {
-    0% {
-      box-shadow: 0 0 0 0 rgba(220, 50, 47, 0.4);
+  @keyframes pulse-ring {
+
+    0%,
+    100% {
+      border-color: #d00;
     }
 
     50% {
-      box-shadow: 0 0 0 6px rgba(220, 50, 47, 0.1);
+      border-color: transparent;
+    }
+  }
+
+  .convective-flag {
+    outline: 2px dashed orange;
+    outline-offset: -4px;
+    animation: flash-outline 1s linear infinite;
+    position: relative;
+  }
+
+  .convective-flag::after {
+    content: "⚡";
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 1.1em;
+    animation: flash-emoji 1s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes flash-emoji {
+
+    0%,
+    100% {
+      opacity: 1;
     }
 
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .convective-wrapper {
+    border: 2px dashed orange;
+    border-radius: 6px;
+    padding: 4px;
+    position: relative;
+  }
+
+  .flash-border {
+    animation: flash-border 1s linear infinite;
+  }
+
+  @keyframes flash-border {
+
+    0%,
     100% {
-      box-shadow: 0 0 0 0 rgba(220, 50, 47, 0.0);
+      border-color: orange;
+    }
+
+    50% {
+      border-color: transparent;
+    }
+  }
+
+  .convective-icon {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    font-size: 1.1em;
+    animation: flash-emoji 1s linear infinite;
+    pointer-events: none;
+  }
+
+  @keyframes flash-icon {
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .wx-box {
+    position: relative;
+  }
+
+  @keyframes flash-outline {
+
+    0%,
+    100% {
+      outline-color: orange;
+    }
+
+    50% {
+      outline-color: transparent;
     }
   }
 </style>
@@ -459,10 +547,14 @@
       const kcdw = blocks.find(b => b.startsWith("KCDW"));
       const others = blocks.filter(b => !b.startsWith("KCDW"));
       const kcdwCategory = getFlightCategoryFromMETAR(kcdw);
-      const kcdwPulse = shouldPulseFromWind(kcdw) ? " pulse-border" : "";
+      const kcdwPulse = shouldPulseFromWind(kcdw) ? "pulse-border" : "";
+      const kcdwConvective = hasConvectiveActivity(kcdw);
       kcdwDiv.innerHTML = `
   <div class="wx-line-block wx-${kcdwCategory}">
-    <pre class="${kcdwPulse.trim()}">${kcdw.replace(/\n/g, "<br>")}</pre>
+    <div class="wx-box ${[kcdwPulse, kcdwConvective].join(" ").trim()}">
+      <pre>${kcdw.replace(/\n/g, "<br>")}</pre>
+      ${kcdwConvective ? '<div class="convective-icon">⚡</div>' : ''}
+    </div>
   </div>
 `;
       extraDiv.innerHTML = others.map(block => {
@@ -472,13 +564,16 @@
           getFlightCategoryFromMETAR(block);
         const pulse = (isTAF ?
           shouldPulseFromTAF(block) :
-          shouldPulseFromWind(block)) ? " pulse-border" : "";
-        console.log("Block type:", isTAF ? "TAF" : "METAR");
-        console.log("→ Category:", category, "Pulse:", !!pulse);
+          shouldPulseFromWind(block)) ? "pulse-border" : "";
+        const hasCB = hasConvectiveActivity(block);
+        const convective = hasCB ? "convective-flag" : "";
         return `
-    <div class="wx-line-block wx-${category}">
-      <pre class="${pulse.trim()}">${block.replace(/\n/g, "<br>")}</pre>
+  <div class="wx-line-block wx-${category}">
+    <div class="wx-box ${[pulse, convective].join(' ').trim()}">
+      <pre>${block.replace(/\n/g, "<br>")}</pre>
+      ${hasCB ? '<div class="convective-icon">⚡</div>' : ''}
     </div>
+  </div>
   `;
       }).join('');
     } catch (err) {
@@ -735,18 +830,32 @@
     const lines = taf.split(/\n|<br>/);
     const todayUTC = new Date().getUTCDate().toString().padStart(2, "0");
     console.log("🔍 TAF lines:", lines);
-    const forecastLines = lines.filter(line => {
+    const forecastLines = [];
+    for (const line of lines) {
       const trimmed = line.trim();
-      const match = trimmed.match(/^FM(\d{2})\d{4}/);
-      if (!match) {
-        console.log("⛔️ Skipping non-FM line:", line);
-        return false;
+      // 1. Include initial line if it starts with KXXX
+      if (trimmed.startsWith("K")) {
+        console.log("📌 Including initial line:", trimmed);
+        forecastLines.push(trimmed);
+        continue;
       }
-      const matchDay = match[1];
-      const keep = matchDay === todayUTC;
-      console.log(`${keep ? "✅" : "⏭️"} FM line with day ${matchDay}:`, line);
-      return keep;
-    });
+      // 2. Match FMddhhmm lines
+      const fmMatch = trimmed.match(/^FM(\d{2})\d{4}/);
+      if (fmMatch && fmMatch[1] === todayUTC) {
+        console.log("✅ FM line with day", fmMatch[1] + ":", trimmed);
+        forecastLines.push(trimmed);
+        continue;
+      }
+      // 3. Match TEMPO ddhh/ddhh lines
+      const tempoMatch = trimmed.match(/TEMPO\s+(\d{2})\d{2}\/(\d{2})\d{2}/);
+      if (
+        tempoMatch &&
+        (tempoMatch[1] === todayUTC || tempoMatch[2] === todayUTC)
+      ) {
+        console.log("⚠️ Including TEMPO line:", trimmed);
+        forecastLines.push(trimmed);
+      }
+    }
     const categories = forecastLines
       .map(line => {
         const cat = getFlightCategoryFromMETAR(line);
@@ -781,6 +890,10 @@
       const gust = match[5] ? parseInt(match[5], 10) : 0;
       return wind >= 16 || gust >= 16;
     });
+  }
+
+  function hasConvectiveActivity(text) {
+    return /(?:\s|^)(CB|TS|TSRA|VCTS|VCTSRA)(?:\s|$)/i.test(text);
   }
 </script>
 
