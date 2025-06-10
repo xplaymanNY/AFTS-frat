@@ -555,7 +555,7 @@
       const others = blocks.filter(b => !b.startsWith("KCDW"));
       const kcdwCategory = getFlightCategoryFromMETAR(kcdw);
       const kcdwPulse = shouldPulseFromWind(kcdw) ? "pulse-border" : "";
-      const kcdwConvective = hasConvectiveActivity(kcdw);
+      const kcdwConvective = hasConvectiveActivity(kcdw) ? "convective-flag" : "";
       kcdwDiv.innerHTML = `
   <div class="wx-line-block wx-${kcdwCategory}">
     <div class="wx-box ${[kcdwPulse, kcdwConvective].join(" ").trim()}">
