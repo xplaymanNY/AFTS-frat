@@ -893,7 +893,20 @@
   }
 
   function hasConvectiveActivity(text) {
-    return /(?:\s|^)(CB|TS|TSRA|VCTS|VCTSRA)(?:\s|$)/i.test(text);
+    const keywords = [
+      /\bCB\b/, // Cumulonimbus
+      /\bCBMAM\b/, // Mammatus
+      /\bTS\b/, // Thunderstorm
+      /\bVCTS\b/, // Vicinity TS
+      /\bLTG\b/, // Lightning
+      /\bTSNO\b/, // Recent TS ended
+      /\+TS\b/, // Intense TS
+      /\bTSRA\b/, // TS + Rain
+      /\bTSTORM\b/, // Full word TS (rare)
+      /\bFC\b/, // Funnel cloud
+      /\bTORNADO\b/ // Text-based tornado
+    ];
+    return keywords.some(rx => rx.test(text.toUpperCase()));
   }
 </script>
 
