@@ -2492,10 +2492,13 @@
   }
 
   .v-line {
-    width: 3px;
-    height: 100%;
-    left: 50%;
     display: block;
+    background-color: red;
+    width: 3px;
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 10;
   }
 
   .h-line {
@@ -2503,6 +2506,17 @@
     width: 100%;
     top: 50%;
     display: block;
+  }
+
+  .ref-reset-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+    border: 1px solid #999;
+    background: #f0f0f0;
+    cursor: pointer;
+    border-radius: 4px;
   }
 </style>
 
@@ -2598,13 +2612,13 @@
       <img id="stationDiagram" src="" alt="Station Diagram">
     </div>
     <div class="chart-wrapper">
-      <h3>Moment Lookup Chart</h3>
+      <h3>Loading Graph</h3>
       <div class="chart-inner">
         <img id="loadingGraph" class="loading-graph-img" src="https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/loading-graphs/C172S_Loading%20Graph.svg" alt="C172S Loading Graph" />
         <div class="v-line" id="vLine"></div>
         <div class="h-line" id="hLine"></div>
-        <div id="intersectionDot"></div>
       </div>
+      <button id="resetRefLines" class="ref-reset-btn">Reset Reference Lines</button>
     </div>
   </div>
 
@@ -2852,159 +2866,91 @@
       });
     });
   });
-
-  function makeDraggableLine(line, isVertical) {
-    let isDragging = false;
-
-    function startDrag(e) {
-      const target = e.target;
-      if (e.target !== line) return;
-      isDragging = true;
-      document.body.style.cursor = 'grabbing';
-      e.preventDefault();
-    }
-
-    function drag(e) {
-      if (!isDragging) return;
-      const wrapper = document.querySelector('.chart-wrapper');
-      const rect = wrapper.getBoundingClientRect();
-      let x, y;
-      if (e.touches && e.touches.length) {
-        x = e.touches[0].clientX;
-        y = e.touches[0].clientY;
-      } else {
-        x = e.clientX;
-        y = e.clientY;
-      }
-      if (isVertical) {
-        const newLeft = Math.max(0, Math.min(x - rect.left, rect.width));
-        line.style.left = `${newLeft}px`;
-      } else {
-        const newTop = Math.max(0, Math.min(y - rect.top, rect.height));
-        line.style.top = `${newTop}px`;
-      }
-    }
-
-    function endDrag() {
-      isDragging = false;
-      document.body.style.cursor = '';
-    }
-    line.addEventListener('mousedown', startDrag);
-    line.addEventListener('touchstart', startDrag, {
-      passive: false
-    });
-    window.addEventListener('mousemove', drag);
-    window.addEventListener('touchmove', drag, {
-      passive: false
-    });
-    window.addEventListener('mouseup', endDrag);
-    window.addEventListener('touchend', endDrag);
-  }
-  document.addEventListener('DOMContentLoaded', () => {
-    makeDraggableLine(document.getElementById('vLine'), true);
-    makeDraggableLine(document.getElementById('hLine'), false);
-  });
-document.addEventListener("DOMContentLoaded", () => {
-  const chartInner = document.querySelector(".chart-inner");
-  const chartImg = document.getElementById("loadingGraph");
-  const vLine = document.getElementById("vLine");
-  const hLine = document.getElementById("hLine");
-  const dot = document.getElementById("intersectionDot");
-
-  const svgBounds = {
-    left: 113,
-    right: 578,
-    top: 27,
-    bottom: 624
-  };
-
-  function clamp(n, min, max) {
-    return Math.max(min, Math.min(max, n));
-  }
-
-  function updateDotPosition() {
-    const vLeft = parseFloat(vLine.style.left || "0");
-    const hTop = parseFloat(hLine.style.top || "0");
-    dot.style.left = `${vLeft - 6}px`;
-    dot.style.top = `${hTop - 6}px`;
-  }
-
-  function makeDraggable(line, axis) {
-    let isDragging = false;
-
-    const start = (e) => {
-      if (e.target !== line) return;
-      isDragging = true;
-      document.body.style.cursor = "grabbing";
-      e.preventDefault();
+  document.addEventListener("DOMContentLoaded", () => {
+    const chartInner = document.querySelector(".chart-inner");
+    const chartImg = document.getElementById("loadingGraph");
+    const vLine = document.getElementById("vLine");
+    const hLine = document.getElementById("hLine");
+    // Final measured boundaries within native SVG pixels
+    const svgBounds = {
+      left: 113,
+      right: 578,
+      top: 27,
+      bottom: 624
     };
 
-    const move = (e) => {
-      if (!isDragging) return;
-      const evt = e.touches ? e.touches[0] : e;
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
 
+    function makeDraggable(line, axis, scaleX, scaleY) {
+      let isDragging = false;
+      const start = (e) => {
+        if (e.target !== line) return;
+        isDragging = true;
+        document.body.style.cursor = "grabbing";
+        e.preventDefault();
+      };
+      const move = (e) => {
+        if (!isDragging) return;
+        const evt = e.touches ? e.touches[0] : e;
+        const rect = chartInner.getBoundingClientRect();
+        if (axis === "x") {
+          const x = evt.clientX - rect.left;
+          const minX = svgBounds.left * scaleX;
+          const maxX = svgBounds.right * scaleX;
+          vLine.style.left = `${clamp(x, minX, maxX)}px`;
+        } else {
+          const y = evt.clientY - rect.top;
+          const minY = svgBounds.top * scaleY;
+          const maxY = svgBounds.bottom * scaleY;
+          hLine.style.top = `${clamp(y, minY, maxY)}px`;
+        }
+      };
+      const end = () => {
+        isDragging = false;
+        document.body.style.cursor = "";
+      };
+      line.addEventListener("mousedown", start);
+      line.addEventListener("touchstart", start, {
+        passive: false
+      });
+      window.addEventListener("mousemove", move);
+      window.addEventListener("touchmove", move, {
+        passive: false
+      });
+      window.addEventListener("mouseup", end);
+      window.addEventListener("touchend", end);
+    }
+
+    function initializeChartLines() {
       const imgRect = chartImg.getBoundingClientRect();
-      const containerRect = chartInner.getBoundingClientRect();
       const scaleX = imgRect.width / chartImg.naturalWidth;
       const scaleY = imgRect.height / chartImg.naturalHeight;
-
-      const bounds = {
-        xMin: svgBounds.left * scaleX,
-        xMax: svgBounds.right * scaleX,
-        yMin: svgBounds.top * scaleY,
-        yMax: svgBounds.bottom * scaleY
-      };
-
-      if (axis === "x") {
-        const relX = evt.clientX - containerRect.left;
-        const clamped = clamp(relX, bounds.xMin, bounds.xMax);
-        vLine.style.left = `${clamped}px`;
-      } else {
-        const relY = evt.clientY - containerRect.top;
-        const clamped = clamp(relY, bounds.yMin, bounds.yMax);
-        hLine.style.top = `${clamped}px`;
-      }
-
-      updateDotPosition();
-    };
-
-    const end = () => {
-      isDragging = false;
-      document.body.style.cursor = "";
-    };
-
-    line.addEventListener("mousedown", start);
-    line.addEventListener("touchstart", start, { passive: false });
-    window.addEventListener("mousemove", move);
-    window.addEventListener("touchmove", move, { passive: false });
-    window.addEventListener("mouseup", end);
-    window.addEventListener("touchend", end);
-  }
-
-  function initializeLines() {
-    const imgRect = chartImg.getBoundingClientRect();
-    const scaleX = imgRect.width / chartImg.naturalWidth;
-    const scaleY = imgRect.height / chartImg.naturalHeight;
-
-    const centerX = (svgBounds.left + (svgBounds.right - svgBounds.left) / 2) * scaleX;
-    const centerY = (svgBounds.top + (svgBounds.bottom - svgBounds.top) / 2) * scaleY;
-
-    vLine.style.left = `${centerX}px`;
-    hLine.style.top = `${centerY}px`;
-
-    updateDotPosition();
-  }
-
-  chartImg.addEventListener("load", () => {
-    initializeLines();
-    makeDraggable(vLine, "x");
-    makeDraggable(hLine, "y");
+      const centerX = ((svgBounds.left + svgBounds.right) / 2) * scaleX;
+      const centerY = ((svgBounds.top + svgBounds.bottom) / 2) * scaleY;
+      vLine.style.left = `${centerX}px`;
+      hLine.style.top = `${centerY}px`;
+      vLine.style.display = "block";
+      hLine.style.display = "block";
+      makeDraggable(vLine, "x", scaleX, scaleY);
+      makeDraggable(hLine, "y", scaleX, scaleY);
+    }
+    document.getElementById("resetRefLines").addEventListener("click", () => {
+      if (!chartImg.complete) return;
+      const imgRect = chartImg.getBoundingClientRect();
+      const scaleX = imgRect.width / chartImg.naturalWidth;
+      const scaleY = imgRect.height / chartImg.naturalHeight;
+      const centerX = ((svgBounds.left + svgBounds.right) / 2) * scaleX;
+      const centerY = ((svgBounds.top + svgBounds.bottom) / 2) * scaleY;
+      vLine.style.left = `${centerX}px`;
+      hLine.style.top = `${centerY}px`;
+    });
+    chartImg.addEventListener("load", initializeChartLines);
+    if (chartImg.complete) {
+      chartImg.dispatchEvent(new Event("load"));
+    }
   });
-
-  if (chartImg.complete) {
-    chartImg.dispatchEvent(new Event("load"));
-  }
-});
 </script>
 
 <style>
