@@ -530,6 +530,13 @@
     "C182T-G1000": 51.0,
     "PA-44-180": 95.0
   };
+  const stationDiagramPaths = {
+    "C172S": "https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/stations/C172S_Stations.svg",
+    "C172R": "https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/stations/C172R_Stations.svg",
+    "C172P": "https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/stations/C172P_Stations.svg",
+    "C182T-G1000": "https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/stations/C182T_Stations.svg",
+    "PA-44-180": "https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/stations/PA44_Stations.svg"
+  };
   const continueButton = document.getElementById("continueToSection2");
   const section2 = document.getElementById("section2");
   async function loadWeather() {
@@ -638,6 +645,11 @@
         tailDropdown.appendChild(opt);
       }
     }
+    const diagramImg = document.getElementById("stationDiagram");
+    if (diagramImg && airplane) {
+      const mappedType = airplane === "C172S-G1000" ? "C172S" : airplane;
+      diagramImg.src = stationDiagramPaths[mappedType] || "";
+    }
     const isInstrumentRated = instrumentCheckbox.checked || cert === "Airline Transport Pilot";
     const isRestricted = [
       "Discovery Flight",
@@ -699,6 +711,8 @@
     const instWeight = instructorWeights[instName] || "";
     const wtInput = document.getElementById("instructorWeight");
     if (wtInput) wtInput.value = instWeight;
+    const wtSpan = document.getElementById("displayInstructorWeight");
+    if (wtSpan) wtSpan.textContent = instWeight ? Math.round(instWeight) : "—";
     // ───── Enable/Disable Continue Button ─────
     const instructorStillRequired = !instructorDropdown.disabled && (cert === "Discovery Flight" || (rules === "IFR" && !isInstrumentRated));
     const instructorValid = !instructorRequired || instructorDropdown.value !== "";
@@ -2325,10 +2339,170 @@
     font-family: Arial, sans-serif;
   }
 
+  .chart-wrapper img.loading-graph-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
   .locked-input {
     background-color: #f5f5f5;
     color: #555;
     pointer-events: none;
+  }
+
+  /* Wrap the table on small screens */
+  .wb-table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+  }
+
+  .wb-table input {
+    width: 100%;
+    max-width: 100px;
+  }
+
+  /* Allow scrolling if really needed */
+  .wb-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media screen and (max-width: 768px) {
+
+    .wb-table th,
+    .wb-table td {
+      font-size: 0.85rem;
+      padding: 6px 4px;
+    }
+
+    .wb-table input {
+      font-size: 0.9rem;
+    }
+
+    .wb-table thead {
+      display: none;
+    }
+
+    .wb-table,
+    .wb-table tbody,
+    .wb-table tr,
+    .wb-table td {
+      display: block;
+      width: 100%;
+    }
+
+    .wb-table tr {
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 6px;
+      background: #fdfdfd;
+    }
+
+    .wb-table td::before {
+      content: attr(data-label);
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .wb-table td {
+      text-align: left;
+    }
+  }
+
+  /* ───────────────────────────────────────────────
+   Shared Layout for Station Diagram + Loading Graph
+   ─────────────────────────────────────────────── */
+  .diagram-graph-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+  }
+
+  /* Flex children share space equally with responsive fallback */
+  .diagram-graph-flex>.chart-wrapper {
+    flex: 1 1 300px;
+    max-width: 500px;
+    border: 1px solid #ccc;
+    padding: 12px;
+    background: #f4f4f4;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+
+  /* ───────────────────────────────────────────────
+   Station Reference Diagram
+   ─────────────────────────────────────────────── */
+  #stationDiagram {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  /* ───────────────────────────────────────────────
+   Loading Graph Image + Overlay
+   ─────────────────────────────────────────────── */
+  .chart-inner {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+  }
+
+  #intersectionDot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: red;
+    border: 2px solid white;
+    border-radius: 50%;
+    z-index: 11;
+    pointer-events: none;
+  }
+
+  .loading-graph-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Reference Lines */
+  .v-line,
+  .h-line {
+    position: absolute;
+    background-color: red;
+    opacity: 0.9;
+    cursor: grab;
+    touch-action: none;
+    z-index: 10;
+  }
+
+  .v-line {
+    width: 3px;
+    height: 100%;
+    left: 50%;
+    display: block;
+  }
+
+  .h-line {
+    height: 3px;
+    width: 100%;
+    top: 50%;
+    display: block;
   }
 </style>
 
@@ -2341,102 +2515,109 @@
     <option value="">Select Tail Number</option>
   </select>
 
-  <!-- Weight & Balance Table -->
-  <table class="wb-table">
-    <thead>
-      <tr>
-        <th>Station</th>
-        <th>Weight (lbs)</th>
-        <th>ARM (in)</th>
-        <th>Moment (lb-in / 1000)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Basic Empty Weight</td>
-        <td><input type="number" id="emptyWeight" class="locked-input"></td>
-        <td><input type="number" id="emptyARM" readonly></td>
-        <td><input type="number" id="emptyMoment" class="locked-input"></td>
-      </tr>
-      <tr>
-        <td>Pilot & Front Passenger<br><small>(Enter combined weight)</small><br><small>Instructor: <span id="displayInstructorWeight">—</span> lbs</small></td>
-        <td><input type="number" id="frontWeight"></td>
-        <td><input type="number" value="37.0" readonly></td>
-        <td><input type="number" id="frontMoment"></td>
-      </tr>
-      <tr>
-        <td>Rear Passengers</td>
-        <td><input type="number" id="rearWeight"></td>
-        <td><input type="number" value="73.0" readonly></td>
-        <td><input type="number" id="rearMoment"></td>
-      </tr>
-      <tr>
-        <td>Fuel<br><small>Max 53 gal, 6 lbs/gal</small></td>
-        <td><input type="number" id="fuelWeight"></td>
-        <td><input type="number" value="48.0" readonly></td>
-        <td><input type="number" id="fuelMoment"></td>
-      </tr>
-      <tr>
-        <td>Baggage Area A</td>
-        <td><input type="number" id="baggageAWeight"></td>
-        <td><input type="number" value="95.0" readonly></td>
-        <td><input type="number" id="baggageAMoment"></td>
-      </tr>
-      <tr>
-        <td>Baggage Area B</td>
-        <td><input type="number" id="baggageBWeight"></td>
-        <td><input type="number" value="123.0" readonly></td>
-        <td><input type="number" id="baggageBMoment"></td>
-      </tr>
-      <tr>
-        <td colspan="4">
-          <hr>
-        </td>
-      </tr>
-      <tr>
-        <td><strong>Ramp Weight</strong></td>
-        <td><input type="number" id="rampWeight"></td>
-        <td><input type="number" id="rampCG" readonly></td>
-        <td><input type="number" id="rampMoment"></td>
-      </tr>
-      <tr>
-        <td>Start-up, Taxi, and Run-up</td>
-        <td><input type="number" value="-8" readonly></td>
-        <td><input type="text" value="—" readonly></td>
-        <td><input type="number" value="-0.4" readonly></td>
-      </tr>
-      <tr>
-        <td><strong>Takeoff Weight</strong></td>
-        <td><input type="number" id="takeoffWeight"></td>
-        <td><input type="number" id="takeoffCG" readonly></td>
-        <td><input type="number" id="takeoffMoment"></td>
-      </tr>
-    </tbody>
-  </table>
+  <!-- Weight & Balance Table (Mobile-Friendly) -->
+  <div class="wb-table-container">
+    <table class="wb-table">
+      <thead>
+        <tr>
+          <th>Station</th>
+          <th>Weight (lbs)</th>
+          <th>ARM (in)</th>
+          <th>Moment (lb-in / 1000)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-label="Station">Basic Empty Weight</td>
+          <td data-label="Weight (lbs)"><input type="number" id="emptyWeight" class="locked-input"></td>
+          <td data-label="ARM (in)"><input type="number" id="emptyARM" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="emptyMoment" class="locked-input"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Pilot & Front Passenger<br><small>(Enter combined weight)</small><br><small>Instructor: <span id="displayInstructorWeight">—</span> lbs</small></td>
+          <td data-label="Weight (lbs)"><input type="number" id="frontWeight"></td>
+          <td data-label="ARM (in)"><input type="number" value="37.0" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="frontMoment"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Rear Passengers</td>
+          <td data-label="Weight (lbs)"><input type="number" id="rearWeight"></td>
+          <td data-label="ARM (in)"><input type="number" value="73.0" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="rearMoment"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Fuel<br><small>Max 53 gal, 6 lbs/gal</small></td>
+          <td data-label="Weight (lbs)"><input type="number" id="fuelWeight"></td>
+          <td data-label="ARM (in)"><input type="number" value="48.0" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="fuelMoment"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Baggage Area A</td>
+          <td data-label="Weight (lbs)"><input type="number" id="baggageAWeight"></td>
+          <td data-label="ARM (in)"><input type="number" value="95.0" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="baggageAMoment"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Baggage Area B</td>
+          <td data-label="Weight (lbs)"><input type="number" id="baggageBWeight"></td>
+          <td data-label="ARM (in)"><input type="number" value="123.0" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="baggageBMoment"></td>
+        </tr>
+        <tr>
+          <td colspan="4">
+            <hr>
+          </td>
+        </tr>
+        <tr>
+          <td data-label="Station"><strong>Ramp Weight</strong></td>
+          <td data-label="Weight (lbs)"><input type="number" id="rampWeight"></td>
+          <td data-label="ARM (in)"><input type="number" id="rampCG" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="rampMoment"></td>
+        </tr>
+        <tr>
+          <td data-label="Station">Start-up, Taxi, and Run-up</td>
+          <td data-label="Weight (lbs)"><input type="number" value="-8" readonly></td>
+          <td data-label="ARM (in)"><input type="text" value="—" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" value="-0.4" readonly></td>
+        </tr>
+        <tr>
+          <td data-label="Station"><strong>Takeoff Weight</strong></td>
+          <td data-label="Weight (lbs)"><input type="number" id="takeoffWeight"></td>
+          <td data-label="ARM (in)"><input type="number" id="takeoffCG" readonly></td>
+          <td data-label="Moment (lb-in / 1000)"><input type="number" id="takeoffMoment"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div id="cgValidation" style="margin-top:10px; font-weight: bold;"></div>
 
-  <!-- Placeholders for Station Diagram, Chart, and Plot -->
-  <div class="wb-extras">
-    <h3>Station Diagram (placeholder)</h3>
-    <div class="station-diagram-placeholder">[Station diagram goes here]</div>
-
-    <h3>Moment Lookup Chart</h3>
-    <div class="moment-chart-placeholder">
-      [Chart image here]
-      <!-- Future: Sliders and snapping interaction -->
+  <div class="diagram-graph-flex">
+    <div class="chart-wrapper">
+      <h3>Station Reference Diagram</h3>
+      <img id="stationDiagram" src="" alt="Station Diagram">
     </div>
-
-    <h3>CG Envelope & Moment/Weight Plot</h3>
-    <div class="envelope-plot-container">
-      <div class="chart-wrapper">
-        <canvas id="cgEnvelopePlot" width="400" height="300"></canvas>
-      </div>
-      <div class="chart-wrapper">
-        <canvas id="momentWeightPlot" width="400" height="300"></canvas>
+    <div class="chart-wrapper">
+      <h3>Moment Lookup Chart</h3>
+      <div class="chart-inner">
+        <img id="loadingGraph" class="loading-graph-img" src="https://raw.githubusercontent.com/xplaymanNY/AFTS-frat/main/images/loading-graphs/C172S_Loading%20Graph.svg" alt="C172S Loading Graph" />
+        <div class="v-line" id="vLine"></div>
+        <div class="h-line" id="hLine"></div>
+        <div id="intersectionDot"></div>
       </div>
     </div>
   </div>
+
+  <h3>CG Envelope & Moment/Weight Plot</h3>
+  <div class="envelope-plot-container">
+    <div class="chart-wrapper">
+      <canvas id="cgEnvelopePlot" width="400" height="300"></canvas>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="momentWeightPlot" width="400" height="300"></canvas>
+    </div>
+  </div>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -2671,6 +2852,159 @@
       });
     });
   });
+
+  function makeDraggableLine(line, isVertical) {
+    let isDragging = false;
+
+    function startDrag(e) {
+      const target = e.target;
+      if (e.target !== line) return;
+      isDragging = true;
+      document.body.style.cursor = 'grabbing';
+      e.preventDefault();
+    }
+
+    function drag(e) {
+      if (!isDragging) return;
+      const wrapper = document.querySelector('.chart-wrapper');
+      const rect = wrapper.getBoundingClientRect();
+      let x, y;
+      if (e.touches && e.touches.length) {
+        x = e.touches[0].clientX;
+        y = e.touches[0].clientY;
+      } else {
+        x = e.clientX;
+        y = e.clientY;
+      }
+      if (isVertical) {
+        const newLeft = Math.max(0, Math.min(x - rect.left, rect.width));
+        line.style.left = `${newLeft}px`;
+      } else {
+        const newTop = Math.max(0, Math.min(y - rect.top, rect.height));
+        line.style.top = `${newTop}px`;
+      }
+    }
+
+    function endDrag() {
+      isDragging = false;
+      document.body.style.cursor = '';
+    }
+    line.addEventListener('mousedown', startDrag);
+    line.addEventListener('touchstart', startDrag, {
+      passive: false
+    });
+    window.addEventListener('mousemove', drag);
+    window.addEventListener('touchmove', drag, {
+      passive: false
+    });
+    window.addEventListener('mouseup', endDrag);
+    window.addEventListener('touchend', endDrag);
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    makeDraggableLine(document.getElementById('vLine'), true);
+    makeDraggableLine(document.getElementById('hLine'), false);
+  });
+document.addEventListener("DOMContentLoaded", () => {
+  const chartInner = document.querySelector(".chart-inner");
+  const chartImg = document.getElementById("loadingGraph");
+  const vLine = document.getElementById("vLine");
+  const hLine = document.getElementById("hLine");
+  const dot = document.getElementById("intersectionDot");
+
+  const svgBounds = {
+    left: 113,
+    right: 578,
+    top: 27,
+    bottom: 624
+  };
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function updateDotPosition() {
+    const vLeft = parseFloat(vLine.style.left || "0");
+    const hTop = parseFloat(hLine.style.top || "0");
+    dot.style.left = `${vLeft - 6}px`;
+    dot.style.top = `${hTop - 6}px`;
+  }
+
+  function makeDraggable(line, axis) {
+    let isDragging = false;
+
+    const start = (e) => {
+      if (e.target !== line) return;
+      isDragging = true;
+      document.body.style.cursor = "grabbing";
+      e.preventDefault();
+    };
+
+    const move = (e) => {
+      if (!isDragging) return;
+      const evt = e.touches ? e.touches[0] : e;
+
+      const imgRect = chartImg.getBoundingClientRect();
+      const containerRect = chartInner.getBoundingClientRect();
+      const scaleX = imgRect.width / chartImg.naturalWidth;
+      const scaleY = imgRect.height / chartImg.naturalHeight;
+
+      const bounds = {
+        xMin: svgBounds.left * scaleX,
+        xMax: svgBounds.right * scaleX,
+        yMin: svgBounds.top * scaleY,
+        yMax: svgBounds.bottom * scaleY
+      };
+
+      if (axis === "x") {
+        const relX = evt.clientX - containerRect.left;
+        const clamped = clamp(relX, bounds.xMin, bounds.xMax);
+        vLine.style.left = `${clamped}px`;
+      } else {
+        const relY = evt.clientY - containerRect.top;
+        const clamped = clamp(relY, bounds.yMin, bounds.yMax);
+        hLine.style.top = `${clamped}px`;
+      }
+
+      updateDotPosition();
+    };
+
+    const end = () => {
+      isDragging = false;
+      document.body.style.cursor = "";
+    };
+
+    line.addEventListener("mousedown", start);
+    line.addEventListener("touchstart", start, { passive: false });
+    window.addEventListener("mousemove", move);
+    window.addEventListener("touchmove", move, { passive: false });
+    window.addEventListener("mouseup", end);
+    window.addEventListener("touchend", end);
+  }
+
+  function initializeLines() {
+    const imgRect = chartImg.getBoundingClientRect();
+    const scaleX = imgRect.width / chartImg.naturalWidth;
+    const scaleY = imgRect.height / chartImg.naturalHeight;
+
+    const centerX = (svgBounds.left + (svgBounds.right - svgBounds.left) / 2) * scaleX;
+    const centerY = (svgBounds.top + (svgBounds.bottom - svgBounds.top) / 2) * scaleY;
+
+    vLine.style.left = `${centerX}px`;
+    hLine.style.top = `${centerY}px`;
+
+    updateDotPosition();
+  }
+
+  chartImg.addEventListener("load", () => {
+    initializeLines();
+    makeDraggable(vLine, "x");
+    makeDraggable(hLine, "y");
+  });
+
+  if (chartImg.complete) {
+    chartImg.dispatchEvent(new Event("load"));
+  }
+});
 </script>
 
 <style>
