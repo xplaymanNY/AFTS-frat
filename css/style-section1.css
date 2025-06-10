@@ -1,0 +1,40 @@
+.frat-section1 {
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.frat-section1 h2 {
+  margin-bottom: 8px;
+}
+
+.frat-section1 .col-left,
+.frat-section1 .col-right {
+  display: inline-block;
+  vertical-align: top;
+  width: calc(50% - 10px);
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+.frat-section1 label {
+  display: block;
+  margin: 8px 0 4px;
+  font-weight: 600;
+}
+
+.frat-section1 input[type="text"],
+.frat-section1 input[type="date"],
+.frat-section1 select {
+  width: 100%;
+  padding: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.frat-section1 .frat-checkbox {
+  margin: 10px 0;
+}
