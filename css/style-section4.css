@@ -1,0 +1,40 @@
+.frat-actions {
+  max-width: 800px;
+  margin: 0 auto 30px;
+  padding: 10px;
+  text-align: center;
+}
+
+.frat-actions button {
+  margin: 0 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+#submitButton {
+  background-color: #ec1c24;
+}
+
+#submitButton:hover {
+  background-color: #b8171d;
+}
+
+#printButton {
+  background-color: #0d3b66;
+}
+
+#printButton:hover {
+  background-color: #0a2f54;
+}
+
+@media print {
+  #wx-briefing {
+    display: none !important;
+  }
+}
